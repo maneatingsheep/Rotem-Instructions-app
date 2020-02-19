@@ -1,0 +1,160 @@
+﻿using System;
+using UnityEditor;
+using UnityEngine;
+
+public class MoveEditor : MonoBehaviour
+{
+    public Transform[] Transforms;
+    public PosRot RelativeMove;
+    public Vector3 CameraPos;
+    public Quaternion CameraRot;
+
+    public bool DoNullify;
+
+    [Serializable]
+    public class PosRot {
+        public Vector3 Pos;
+        public Vector3 PublicRot;
+
+        internal Quaternion Rot {
+            get {
+                return Quaternion.Euler(PublicRot);
+            }
+        }
+    }
+
+#if UNITY_EDITOR
+    public void Nullify() {
+
+        Transform localRoot = Transforms[0];
+        while (localRoot.parent != Transforms[0].root) {
+            localRoot = localRoot.parent;
+        }
+
+        ResetSingleRotationScale(localRoot);
+        ResetSinglePart(localRoot);
+    }
+
+    static private void ResetSingleRotationScale(Transform t) {
+        if (t.childCount > 0) {
+
+            Quaternion parentRot = t.rotation;
+
+            for (int i = 0; i < t.childCount; i++) {
+                Transform child = t.GetChild(i);
+
+                if (t.parent != null) {
+                    child.localPosition = t.parent.InverseTransformPoint(t.TransformPoint(child.localPosition)) - t.localPosition;
+                } else {
+                    child.localPosition = t.TransformPoint(child.localPosition) - t.localPosition;
+                }
+
+                child.localRotation = t.localRotation * child.localRotation;
+                child.localScale *= t.localScale.x;
+            }
+
+            t.localRotation = Quaternion.identity;
+            t.localScale = Vector3.one;
+
+
+            for (int i = 0; i < t.childCount; i++) {
+                Transform child = t.GetChild(i);
+                ResetSingleRotationScale(child);
+            }
+        }
+    }
+
+    static private bool ResetSinglePart(Transform t) {
+
+        Vector3 avg = new Vector3();
+        Vector3[] adjusted;
+
+
+
+        if (t.childCount > 0) {
+
+            int realChildCount = 0;
+
+            adjusted = new Vector3[t.childCount];
+
+
+            for (int i = 0; i < t.childCount; i++) {
+                Transform child = t.GetChild(i);
+
+                //ignore imported lights and cameras
+                if (ResetSinglePart(child)) {
+
+                    if (t.parent != null) {
+                        adjusted[i] = t.parent.InverseTransformPoint(t.TransformPoint(child.localPosition)) - t.localPosition;
+                    } else {
+                        adjusted[i] = t.TransformPoint(child.localPosition) - t.localPosition;
+                    }
+
+                    realChildCount++;
+
+                    avg += adjusted[i];
+                }
+            }
+
+            avg /= realChildCount;
+
+            for (int j = 0; j < adjusted.Length; j++) {
+                adjusted[j] -= avg;
+            }
+
+            for (int i = 0; i < t.childCount; i++) {
+                Transform child = t.GetChild(i);
+
+                //ignore imported lights and cameras
+                if (child.gameObject.GetComponent<MeshFilter>() != null) {
+                    child.localPosition = adjusted[i];
+                }
+            }
+
+            t.localPosition += avg;
+
+        } else {
+            MeshFilter mesh = t.gameObject.GetComponent<MeshFilter>();
+
+            if (mesh == null) {
+                return false;
+            }
+            else
+            {
+                adjusted = new Vector3[mesh.sharedMesh.vertices.Length];
+
+                for (int j = 0; j < mesh.sharedMesh.vertices.Length; j++)
+                {
+                    adjusted[j] = t.parent.InverseTransformPoint(t.TransformPoint(mesh.sharedMesh.vertices[j]));
+                    avg += adjusted[j];
+                }
+
+                avg /= adjusted.Length;
+
+                for (int j = 0; j < adjusted.Length; j++)
+                {
+                    adjusted[j] -= avg;
+                }
+
+                mesh.sharedMesh.vertices = adjusted;
+                mesh.sharedMesh.RecalculateBounds();
+                mesh.sharedMesh.RecalculateNormals();
+                mesh.sharedMesh.RecalculateTangents();
+
+                t.position = avg;
+                t.rotation = Quaternion.identity;
+                t.localScale = Vector3.one;
+            }
+
+            
+        }
+
+        return true;
+    }
+
+    internal void CaptureCamera() {
+        CameraPos = EditorWindow.GetWindow<SceneView>().camera.transform.position;
+        CameraRot = EditorWindow.GetWindow<SceneView>().camera.transform.rotation;
+    }
+#endif
+}
