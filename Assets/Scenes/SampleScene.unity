@@ -170,7 +170,7 @@ MonoBehaviour:
   - ELC-30-0084 STEP1 - ELC-30-0084-1 STEP4-1 ELC-30-0084-1 STE.002
   - ELC-30-0084 STEP1 - ELC-30-0084-1 STEP4-1 ELC-30-0084-1 STE.003
   - ELC-30-0084 STEP1 - ELC-30-0084-1 STEP4-1 ELC-30-0084-1 STE.004
-  - ELC-30-0084 STEP1 - ELC-30-0084-1 STEP4-1 ELC-30-0084-1 STE.004
+  - ELC-30-0084 STEP1 - ELC-30-0084-1 STEP4-1 ELC-30-0084-1 STEP2-1
   RelativeMove:
     Pos: {x: 0, y: 0, z: -20}
     PublicRot: {x: 0, y: 0, z: 180}
@@ -2250,7 +2250,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1632184616
 Transform:
   m_ObjectHideFlags: 0

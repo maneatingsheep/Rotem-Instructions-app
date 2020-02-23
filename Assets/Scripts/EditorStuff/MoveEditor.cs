@@ -80,7 +80,7 @@ public class MoveEditor : MonoBehaviour
         }
 
         ResetSingleRotationScale(localRoot);
-        ResetSinglePart(localRoot);
+        ResetSinglePart(localRoot, this);
     }
 
     
@@ -114,10 +114,10 @@ public class MoveEditor : MonoBehaviour
         }
     }
 
-    static private bool ResetSinglePart(Transform t) {
+    static private bool ResetSinglePart(Transform t, MoveEditor me) {
 
         Vector3 avg = new Vector3();
-        Vector3[] adjusted;
+        //Vector3[] adjusted;
 
 
 
@@ -125,66 +125,79 @@ public class MoveEditor : MonoBehaviour
 
             int realChildCount = 0;
 
-            adjusted = new Vector3[t.childCount];
+            //adjusted = new Vector3[t.childCount];
 
+            Transform[] children = new Transform[t.childCount];
 
             for (int i = 0; i < t.childCount; i++) {
-                Transform child = t.GetChild(i);
+                children[i] = t.GetChild(i);
+            }
+
+
+            for (int i = 0; i < children.Length; i++) { 
 
                 //ignore imported lights and cameras
-                if (ResetSinglePart(child)) {
+                if (ResetSinglePart(children[i], me)) {
 
-                    if (t.parent != null) {
+                    /*if (t.parent != null) {
                         adjusted[i] = t.parent.InverseTransformPoint(t.TransformPoint(child.localPosition)) - t.localPosition;
                     } else {
                         adjusted[i] = t.TransformPoint(child.localPosition) - t.localPosition;
                     }
 
-                    realChildCount++;
 
-                    avg += adjusted[i];
+
+                    avg += adjusted[i];*/
+
+                    avg += children[i].localPosition;
+                    realChildCount++;
                 }
             }
 
             avg /= realChildCount;
 
-            for (int j = 0; j < adjusted.Length; j++) {
+            /*for (int j = 0; j < adjusted.Length; j++) {
                 adjusted[j] -= avg;
-            }
+            }*/
 
             for (int i = 0; i < t.childCount; i++) {
                 Transform child = t.GetChild(i);
 
                 //ignore imported lights and cameras
-                if (child.gameObject.GetComponent<MeshFilter>() != null) {
+                /*if (child.gameObject.GetComponent<MeshFilter>() != null) {
                     child.localPosition = adjusted[i];
-                }
+                }*/
+                child.localPosition -= avg;
             }
 
             t.localPosition += avg;
 
         } else {
             MeshFilter mesh = t.gameObject.GetComponent<MeshFilter>();
-
+            
             if (mesh == null) {
                 return false;
             }
             else
             {
-                adjusted = new Vector3[mesh.sharedMesh.vertices.Length];
+                //adjusted = new Vector3[mesh.sharedMesh.vertices.Length];
 
                 for (int j = 0; j < mesh.sharedMesh.vertices.Length; j++)
                 {
-                    adjusted[j] = t.parent.InverseTransformPoint(t.TransformPoint(mesh.sharedMesh.vertices[j]));
-                    avg += adjusted[j];
+                    //adjusted[j] = t.parent.InverseTransformPoint(t.TransformPoint(mesh.sharedMesh.vertices[j]));
+                    //avg += adjusted[j];
+                    avg += t.parent.InverseTransformPoint(t.TransformPoint(mesh.sharedMesh.vertices[j]));
                 }
 
-                avg /= adjusted.Length;
+                //avg /= adjusted.Length;
+                avg /= mesh.sharedMesh.vertices.Length;
 
-                for (int j = 0; j < adjusted.Length; j++)
+                /*for (int j = 0; j < adjusted.Length; j++)
                 {
+                    //adjusted[j] = t.InverseTransformPoint(t.parent.TransformPoint(adjusted[j]));
                     adjusted[j] -= avg;
                 }
+
 
                 mesh.sharedMesh.vertices = adjusted;
                 mesh.sharedMesh.RecalculateBounds();
@@ -193,7 +206,22 @@ public class MoveEditor : MonoBehaviour
 
                 t.position = avg;
                 t.rotation = Quaternion.identity;
-                t.localScale = Vector3.one;
+                t.localScale = Vector3.one;*/
+
+                GameObject container = new GameObject();
+                container.transform.SetParent(t.parent);
+                container.transform.position = avg;
+                t.SetParent(container.transform);
+                for (int i = 0; i < me.Transforms.Length; i++)
+                {
+                    if (t == me.Transforms[i])
+                    {
+                        me.Transforms[i] = container.transform;
+                        break;
+                    }
+                }
+                
+
             }
 
             
