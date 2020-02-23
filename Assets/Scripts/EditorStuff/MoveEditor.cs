@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class MoveEditor : MonoBehaviour
 {
-    public Transform[] Transforms;
+    internal Transform[] Transforms;
+    public string RootTransform;
+    public string[] TransformNames;
     public PosRot RelativeMove;
     public Vector3 CameraPos;
     public Quaternion CameraRot;
@@ -24,6 +26,52 @@ public class MoveEditor : MonoBehaviour
     }
 
 #if UNITY_EDITOR
+
+    internal void Init(Transform allPartsRoot)
+    {
+         
+        
+        Transform pf = Resources.Load<Transform>(RootTransform);
+
+        Transform partRoot = Instantiate<Transform>(pf);
+        //Resources.UnloadAsset(pf);
+
+
+        partRoot.name = RootTransform;
+
+        partRoot.SetParent(allPartsRoot);
+        
+       
+
+        Transforms = new Transform[TransformNames.Length];
+        if (TransformNames.Length == 1)
+        {
+            if (partRoot.name == TransformNames[0])
+            {
+                Transforms[0] = partRoot;
+            }
+            else
+            {
+                Transforms[0] = partRoot.Find(TransformNames[0]);
+            }
+
+        }
+        else
+        {
+            for (int i = 0; i < TransformNames.Length; i++)
+            {
+                Transforms[i] = partRoot.Find(TransformNames[i]);
+            }
+
+            if (DoNullify)
+            {
+                Nullify();
+            }
+        }
+
+        
+    }
+
     public void Nullify() {
 
         Transform localRoot = Transforms[0];
@@ -34,6 +82,8 @@ public class MoveEditor : MonoBehaviour
         ResetSingleRotationScale(localRoot);
         ResetSinglePart(localRoot);
     }
+
+    
 
     static private void ResetSingleRotationScale(Transform t) {
         if (t.childCount > 0) {

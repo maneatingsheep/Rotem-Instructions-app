@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class Database : MonoBehaviour
 {
+    public Transform AllPartsRoot;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -19,12 +21,16 @@ public class Database : MonoBehaviour
             
             Transform child = transform.GetChild(i);
 
+
             if (child.childCount > 0) {
                 
                 moves[i] = new Move() { Submoves = new Move[child.childCount] };
 
+                
+
                 for (int j = 0; j < child.childCount; j++) {
-                    moves[i].Submoves[j] = ConstructMove(child.GetChild(j).GetComponent<MoveEditor>());
+                    MoveEditor me = child.GetChild(j).GetComponent<MoveEditor>();
+                    moves[i].Submoves[j] = ConstructMove(me);
                 }
             } else {
 
@@ -36,7 +42,7 @@ public class Database : MonoBehaviour
     }
 
     private Move ConstructMove(MoveEditor me) {
-        
+        me.Init(AllPartsRoot);
         Move m = new Move() { Transforms = me.Transforms };
 
         m.CameraPos = me.CameraPos;
