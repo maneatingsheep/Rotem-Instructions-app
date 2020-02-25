@@ -6,6 +6,7 @@ using UnityEngine;
 public class Database : MonoBehaviour
 {
     public Transform AllPartsRoot;
+    public Transform CurrentPartRoot;
 
     // Start is called before the first frame update
     void Start()
@@ -13,36 +14,92 @@ public class Database : MonoBehaviour
         
     }
 
-    internal Move[] Init() {
+    internal void Init() {
 
-        Move[] moves = new Move[transform.childCount];
-
-        for (int i = 0; i < transform.childCount; i++) {
-            
-            Transform child = transform.GetChild(i);
+        
+    }
 
 
-            if (child.childCount > 0) {
-                
+    internal string[] GetChapters()
+    {
+        string[] result = new string[transform.childCount];
+
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            result[i] = transform.GetChild(i).GetComponent<PartEditor>().PartName;
+        }
+
+        return result;
+    }
+
+    internal Move[] BuildMoves(int currentPart)
+    {
+
+        //while (AllPartsRoot.childCount > 0)
+        for (int i = 0; i < AllPartsRoot.childCount; i++)
+        {
+            Destroy(AllPartsRoot.GetChild(i).gameObject);
+        }
+
+        CurrentPartRoot = transform.GetChild(currentPart);
+
+        string[] staticParts = CurrentPartRoot.GetComponent<PartEditor>().StaticParts;
+
+        for (int i = 0; i < staticParts.Length; i++)
+        {
+            Transform pf = Resources.Load<Transform>(staticParts[i]);
+
+            Transform partRoot = Instantiate<Transform>(pf);
+            //Resources.UnloadAsset(pf);
+
+
+            partRoot.name = staticParts[i];
+
+            partRoot.SetParent(AllPartsRoot);
+        }
+        
+
+
+        
+
+        Move[] moves = new Move[CurrentPartRoot.childCount];
+
+        for (int i = 0; i < CurrentPartRoot.childCount; i++)
+        {
+
+            Transform child = CurrentPartRoot.GetChild(i);
+
+
+            if (child.childCount > 0)
+            {
+
                 moves[i] = new Move() { Submoves = new Move[child.childCount] };
 
-                
 
-                for (int j = 0; j < child.childCount; j++) {
+
+                for (int j = 0; j < child.childCount; j++)
+                {
                     MoveEditor me = child.GetChild(j).GetComponent<MoveEditor>();
-                    moves[i].Submoves[j] = ConstructMove(me);
+                    moves[i].Submoves[j] = BuildMove(me);
                 }
-            } else {
+            }
+            else
+            {
 
-                moves[i] = ConstructMove(child.GetComponent<MoveEditor>());
+                moves[i] = BuildMove(child.GetComponent<MoveEditor>());
             }
         }
 
         return moves;
     }
 
-    private Move ConstructMove(MoveEditor me) {
-        me.Init(AllPartsRoot);
+    
+
+    private Move BuildMove(MoveEditor me) {
+
+        me.BuildGeometry(AllPartsRoot);
+
+
         Move m = new Move() { Transforms = me.Transforms };
 
         m.CameraPos = me.CameraPos;
@@ -62,6 +119,9 @@ public class Database : MonoBehaviour
             m.Initital.Pos[j] = m.Final.Pos[j] - me.RelativeMove.Pos;
             m.Initital.Rot[j] = m.Final.Rot[j] * me.RelativeMove.Rot;
         }
+
+        m.RemarkTransforms = me.RemarkTransforms;
+        m.Remarks = me.Remarks;
 
         return m;
         

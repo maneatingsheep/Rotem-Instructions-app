@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEngine;
 
 [CustomEditor(typeof(MoveEditor))] 
-public class NullifyEditor : Editor {
+public class MoveCustomEditor : Editor {
 
 
     public override void OnInspectorGUI() {
@@ -16,7 +16,7 @@ public class NullifyEditor : Editor {
         MoveEditor Move = (MoveEditor)target;
 
         if (GUILayout.Button("Nullify")) {
-            Move.Nullify();
+            Move.ResetAxis();
         }
 
         if (GUILayout.Button("Cam Capture")){

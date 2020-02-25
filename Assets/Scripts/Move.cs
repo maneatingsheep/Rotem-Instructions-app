@@ -7,6 +7,8 @@ internal class Move {
     public Move[] Submoves;
 
     public Transform[] Transforms;
+    public Transform[] RemarkTransforms;
+    public string[] Remarks;
     internal PosRots Initital;
     internal PosRots Final;
     internal Vector3 CameraPos;
@@ -18,4 +20,4 @@ internal class PosRots {
     public Quaternion[] Rot;
 }
 
-    
+

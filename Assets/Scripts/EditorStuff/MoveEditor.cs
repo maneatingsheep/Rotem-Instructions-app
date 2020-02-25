@@ -5,13 +5,19 @@ using UnityEngine;
 public class MoveEditor : MonoBehaviour
 {
     internal Transform[] Transforms;
+    internal Transform[] RemarkTransforms;
+    
     public string RootTransform;
     public string[] TransformNames;
+    
+    public string[] Remarks;
+    public string[] RemarkTransformNames;
+
     public PosRot RelativeMove;
     public Vector3 CameraPos;
     public Quaternion CameraRot;
 
-    public bool DoNullify;
+    public bool DoResetAxis;
 
     [Serializable]
     public class PosRot {
@@ -27,7 +33,7 @@ public class MoveEditor : MonoBehaviour
 
 #if UNITY_EDITOR
 
-    internal void Init(Transform allPartsRoot)
+    internal void BuildGeometry(Transform allPartsRoot)
     {
          
         
@@ -62,17 +68,21 @@ public class MoveEditor : MonoBehaviour
             {
                 Transforms[i] = partRoot.Find(TransformNames[i]);
             }
-
-            if (DoNullify)
-            {
-                Nullify();
-            }
         }
 
-        
+        if (DoResetAxis)
+        {
+            ResetAxis();
+        }
+
+        RemarkTransforms = new Transform[Remarks.Length];
+        for (int i = 0; i < Remarks.Length; i++)
+        {
+            RemarkTransforms[i] = transform.Find(RemarkTransformNames[i]);
+        }
     }
 
-    public void Nullify() {
+    public void ResetAxis() {
 
         Transform localRoot = Transforms[0];
         while (localRoot.parent != Transforms[0].root) {

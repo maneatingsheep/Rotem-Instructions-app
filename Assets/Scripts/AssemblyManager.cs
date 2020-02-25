@@ -10,21 +10,46 @@ public class AssemblyManager : MonoBehaviour {
 
     public Database DatabaseRef;
     public HudController HudControllerRef;
+    public RemarksManager RemarksManagerRef;
     public Material PartMat;
 
-    private int CurrentMove = -1;
+    private int CurrentMove;
+    private int CurrentPart;
 
     public Vector3 InitialCamPos;
     public Quaternion InitialCamRot;
 
     private Move[] _moves;
-    // Use this for initialization
-    void Start () {
+    private bool _doPlayAnimation;
 
-        _moves = DatabaseRef.Init();
-        HudControllerRef.SetUIState(HudController.UIState.First);
+    // Use this for initialization
+    void Start() {
+
+        DatabaseRef.Init();
+        HudControllerRef.Init(DatabaseRef.GetChapters());
+        
+
         HudControllerRef.ButtonPressedCallback += ButtonPressed;
-        StartCoroutine(PlayCameraRepositioning(false));
+        HudControllerRef.ChapterPressedCallback += LoadChapter; ;
+
+
+        LoadChapter(0);
+    }
+
+    private void LoadChapter(int chapter)
+    {
+        StopAllCoroutines();
+
+        RemarksManagerRef.OpenHideRemarks(true);
+
+        CurrentMove = -1;
+        CurrentPart = chapter;
+
+        _moves = DatabaseRef.BuildMoves(CurrentPart);
+        
+        ResetToCurrentMove();
+        UpdateHud();
+        StartCoroutine(MoveCameraToCurrentMove(false));
     }
 
     private void ButtonPressed(HudController.ButtonType button) {
@@ -32,40 +57,50 @@ public class AssemblyManager : MonoBehaviour {
         StopAllCoroutines();
 
         switch (button) {
-            case HudController.ButtonType.PlayOne:
-                StartCoroutine(PlayMove(true));
+            case HudController.ButtonType.StartPLaying:
+                _doPlayAnimation = true;
+                UpdateHud();
+                StartCoroutine(PlayCurrentMoveExternalAnimation());
                 break;
-            case HudController.ButtonType.PlayAll:
-                StartCoroutine(PlayMove(false));
+            case HudController.ButtonType.StopPLaying:
+                //StartCoroutine(PlayFullPart(false));
+                _doPlayAnimation = false;
+                ResetToCurrentMove();
+                UpdateHud();
+                StartCoroutine(MoveCameraToCurrentMove(false));
+
                 break;
             case HudController.ButtonType.OneBack:
                 if (CurrentMove > -1) {
                     CurrentMove--;
                 }
-                
-                ResetMasterMove();
-                StartCoroutine(PlayCameraRepositioning(false));
+
+                ResetToCurrentMove();
+                UpdateHud();
+                StartCoroutine(MoveCameraToCurrentMove(false));
 
                 break;
             case HudController.ButtonType.OneForward:
                 if (CurrentMove < _moves.Length - 1) {
                     CurrentMove++;
                 }
-                ResetMasterMove();
-                StartCoroutine(PlayCameraRepositioning(false));
+                ResetToCurrentMove();
+                UpdateHud();
+                StartCoroutine(MoveCameraToCurrentMove(false));
 
                 break;
             case HudController.ButtonType.FullBack:
                 CurrentMove = -1;
-                ResetMasterMove();
-                StartCoroutine(PlayCameraRepositioning(false));
+                ResetToCurrentMove();
+                UpdateHud();
+                StartCoroutine(MoveCameraToCurrentMove(false));
 
                 break;
         }
     }
 
-    void Update () {
-		/*if (Input.GetKeyDown(KeyCode.UpArrow)) {
+    void Update() {
+        /*if (Input.GetKeyDown(KeyCode.UpArrow)) {
             CurrentMove++;
             StartCoroutine(PlayMove(true));
         }else if (Input.GetKeyDown(KeyCode.DownArrow)) {
@@ -76,19 +111,15 @@ public class AssemblyManager : MonoBehaviour {
 
 
 
-    private IEnumerator PlayMove(bool playOne) {
-        
-        
-        bool doPlay = true;
-
-        while (CurrentMove < _moves.Length && doPlay) {
-            
-            doPlay = !playOne;
-
-            yield return StartCoroutine(PlayCameraRepositioning(CurrentMove > -1));
+    private IEnumerator PlayCurrentMoveExternalAnimation() {
 
 
-            ResetMasterMove();
+
+        yield return StartCoroutine(MoveCameraToCurrentMove(CurrentMove > -1));
+
+        while (_doPlayAnimation) {
+
+            ResetToCurrentMove();
 
 
             if (CurrentMove > -1) {
@@ -96,24 +127,42 @@ public class AssemblyManager : MonoBehaviour {
 
                 yield return new WaitForSeconds(1);
 
-                yield return StartCoroutine(PlayMasterMoveAnimation());
-            } else {
+                yield return StartCoroutine(PlayCurrentMoveInternalAnimation());
 
-                yield return new WaitForSeconds(2);
+                yield return new WaitForSeconds(1);
             }
 
-            GoToMasterMoveEnd();
+            GoToCurrentMoveEnd();
 
-            CurrentMove++;
         }
 
-        CurrentMove--;
 
     }
 
-    private IEnumerator PlayCameraRepositioning(bool doAnimate) {
+    private void UpdateHud()
+    {
+        HudController.UIState usState = HudController.UIState.Master;
 
-        HudControllerRef.SetUIState((CurrentMove == -1) ? HudController.UIState.First : ((CurrentMove < _moves.Length - 1) ? HudController.UIState.Middle : HudController.UIState.Last));
+        if (CurrentMove == 0)
+        {
+            usState = HudController.UIState.First;
+
+        }
+        else if (CurrentMove == _moves.Length - 1)
+        {
+            usState = HudController.UIState.Last;
+        }
+        else if (CurrentMove > 0)
+        {
+            usState = HudController.UIState.Middle;
+        }
+
+        HudControllerRef.SetUIState(usState, _doPlayAnimation);
+    }
+
+    private IEnumerator MoveCameraToCurrentMove(bool doAnimate) {
+
+        
 
         Move m = null;
         if (CurrentMove > -1) {
@@ -143,7 +192,21 @@ public class AssemblyManager : MonoBehaviour {
         CameraTrans.localRotation = (CurrentMove > -1) ? (m.CameraRot) : (InitialCamRot);
     }
 
-    private void ResetMasterMove() {
+    private void ResetToCurrentMove() {
+
+        if (CurrentMove != -1) {
+
+            if (_moves[CurrentMove].Submoves != null) {
+                RemarksManagerRef.SetRemarks(_moves[CurrentMove].Submoves[0]);
+            } else {
+            
+                RemarksManagerRef.SetRemarks(_moves[CurrentMove]);
+            } 
+        } else {
+            RemarksManagerRef.SetRemarks(null);
+        }
+        
+
         for (int i = 0; i < _moves.Length; i++) {
             Move m = _moves[i];
             if (m.Submoves != null) {
@@ -174,7 +237,7 @@ public class AssemblyManager : MonoBehaviour {
         }
     }
 
-    private void GoToMasterMoveEnd() {
+    private void GoToCurrentMoveEnd() {
         if (CurrentMove > -1) {
             Move m = _moves[CurrentMove];
             if (m.Submoves != null) {
@@ -214,21 +277,21 @@ public class AssemblyManager : MonoBehaviour {
         }
     }
 
-    private IEnumerator PlayMasterMoveAnimation() {
+    private IEnumerator PlayCurrentMoveInternalAnimation() {
         Move m = _moves[CurrentMove];
         if (m.Submoves != null) {
             for (int j = 0; j < m.Submoves.Length; j++) {
-                yield return StartCoroutine(PlaySingleMoveAnimation(m.Submoves[j]));
+                yield return StartCoroutine(PlaySingleSubMoveAnimation(m.Submoves[j]));
                 if (j < m.Submoves.Length - 1) {
                     yield return new WaitForSeconds(1);
                 }
             }
         } else {
-            yield return StartCoroutine(PlaySingleMoveAnimation(m));
+            yield return StartCoroutine(PlaySingleSubMoveAnimation(m));
         }
     }
 
-    private IEnumerator PlaySingleMoveAnimation(Move m) {
+    private IEnumerator PlaySingleSubMoveAnimation(Move m) {
         float moveTime = 1;
 
         float start = Time.time;
