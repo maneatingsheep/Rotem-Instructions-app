@@ -13,6 +13,8 @@ public class AssemblyManager : MonoBehaviour {
     public RemarksManager RemarksManagerRef;
     public Material PartMat;
 
+    public Transform AllPartsRoot;
+
     private int CurrentMove;
     private int CurrentPart;
 
@@ -21,6 +23,9 @@ public class AssemblyManager : MonoBehaviour {
 
     private Move[] _moves;
     private bool _doPlayAnimation;
+
+    private Vector2 _startTouch;
+    private bool _isTouching = false;
 
     // Use this for initialization
     void Start() {
@@ -47,7 +52,7 @@ public class AssemblyManager : MonoBehaviour {
 
         _moves = DatabaseRef.BuildMoves(CurrentPart);
         
-        ResetToCurrentMove();
+        ResetToCurrentMove(true);
         UpdateHud();
         StartCoroutine(MoveCameraToCurrentMove(false));
     }
@@ -59,13 +64,13 @@ public class AssemblyManager : MonoBehaviour {
         switch (button) {
             case HudController.ButtonType.StartPLaying:
                 _doPlayAnimation = true;
-                UpdateHud();
                 StartCoroutine(PlayCurrentMoveExternalAnimation());
+                UpdateHud();
                 break;
             case HudController.ButtonType.StopPLaying:
                 //StartCoroutine(PlayFullPart(false));
                 _doPlayAnimation = false;
-                ResetToCurrentMove();
+                ResetToCurrentMove(false);
                 UpdateHud();
                 StartCoroutine(MoveCameraToCurrentMove(false));
 
@@ -74,8 +79,8 @@ public class AssemblyManager : MonoBehaviour {
                 if (CurrentMove > -1) {
                     CurrentMove--;
                 }
-
-                ResetToCurrentMove();
+                _doPlayAnimation = false;
+                ResetToCurrentMove(true);
                 UpdateHud();
                 StartCoroutine(MoveCameraToCurrentMove(false));
 
@@ -84,14 +89,15 @@ public class AssemblyManager : MonoBehaviour {
                 if (CurrentMove < _moves.Length - 1) {
                     CurrentMove++;
                 }
-                ResetToCurrentMove();
+                _doPlayAnimation = false;
+                ResetToCurrentMove(true);
                 UpdateHud();
                 StartCoroutine(MoveCameraToCurrentMove(false));
 
                 break;
             case HudController.ButtonType.FullBack:
                 CurrentMove = -1;
-                ResetToCurrentMove();
+                ResetToCurrentMove(true);
                 UpdateHud();
                 StartCoroutine(MoveCameraToCurrentMove(false));
 
@@ -100,13 +106,27 @@ public class AssemblyManager : MonoBehaviour {
     }
 
     void Update() {
-        /*if (Input.GetKeyDown(KeyCode.UpArrow)) {
-            CurrentMove++;
-            StartCoroutine(PlayMove(true));
-        }else if (Input.GetKeyDown(KeyCode.DownArrow)) {
-            CurrentMove--;
-            StartCoroutine(PlayMove(false));
-        }*/
+        if (Input.GetMouseButtonDown(0)) {
+            _isTouching = true;
+            _startTouch = Input.mousePosition;
+        } else if (Input.GetMouseButtonUp(0)) {
+            _isTouching = false;
+        }
+
+        if (_isTouching) {
+
+            Vector2 _curentPos = Input.mousePosition;
+            Vector2 dir = _curentPos - _startTouch;
+
+
+            double angle = Math.Atan2(dir.y, dir.x);
+
+            dir = Quaternion.Euler(0f, 0f, -90) * dir;
+
+            AllPartsRoot.transform.Rotate(dir, dir.magnitude);
+
+            _startTouch = _curentPos;
+        }
     }
 
 
@@ -119,7 +139,7 @@ public class AssemblyManager : MonoBehaviour {
 
         while (_doPlayAnimation) {
 
-            ResetToCurrentMove();
+            ResetToCurrentMove(false);
 
 
             if (CurrentMove > -1) {
@@ -192,7 +212,11 @@ public class AssemblyManager : MonoBehaviour {
         CameraTrans.localRotation = (CurrentMove > -1) ? (m.CameraRot) : (InitialCamRot);
     }
 
-    private void ResetToCurrentMove() {
+    private void ResetToCurrentMove(bool doResetFreeRotation) {
+
+        if (doResetFreeRotation) {
+            AllPartsRoot.transform.rotation = Quaternion.identity;
+        }
 
         if (CurrentMove != -1) {
 
@@ -217,6 +241,7 @@ public class AssemblyManager : MonoBehaviour {
                 ResetSingleMove(m, i);
             }
         }
+
     }
 
     private void ResetSingleMove(Move m, int movenum) {

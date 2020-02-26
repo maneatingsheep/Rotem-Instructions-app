@@ -17,8 +17,11 @@ public class RemarksManager : MonoBehaviour {
 
     internal void SetRemarks(Move move) {
 
+        ShowRemarksButt.gameObject.SetActive(move != null && move.Remarks.Length > 0);
+        HideRemarksButt.gameObject.SetActive(move != null && move.Remarks.Length > 0);
         for (int i = 0; i < Remarks.Length; i++) {
             if (move != null && i < move.Remarks.Length) {
+                
                 Remarks[i].SetActive(true);
                 Remarks[i].GetComponentInChildren<Text>().text = move.Remarks[i];
             } else {

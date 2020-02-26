@@ -45,6 +45,9 @@ public class Database : MonoBehaviour
 
         string[] staticParts = CurrentPartRoot.GetComponent<PartEditor>().StaticParts;
 
+        AllPartsRoot.transform.position = CurrentPartRoot.position;
+        AllPartsRoot.rotation = Quaternion.identity;
+
         for (int i = 0; i < staticParts.Length; i++)
         {
             Transform pf = Resources.Load<Transform>(staticParts[i]);

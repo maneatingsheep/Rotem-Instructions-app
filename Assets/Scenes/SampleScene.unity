@@ -720,7 +720,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 180883658}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -329, y: 269, z: -159}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 678868113}
@@ -1165,7 +1165,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 547170567}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -312.6391, y: 235.67267, z: -190.6535}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 180883659}
@@ -1418,6 +1418,7 @@ MonoBehaviour:
   HudControllerRef: {fileID: 1411133140}
   RemarksManagerRef: {fileID: 314332952}
   PartMat: {fileID: 2100000, guid: da8d86a7751e529469fdf64f5a67ff84, type: 2}
+  AllPartsRoot: {fileID: 1913728319}
   InitialCamPos: {x: -99.03664, y: 275.7494, z: -286.1892}
   InitialCamRot: {x: -0.018677251, y: 0.575838, z: -0.013090839, w: -0.81724554}
 --- !u!4 &652587653
@@ -3482,7 +3483,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1913728318}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -328.9742, y: 215.68001, z: -174.22148}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
