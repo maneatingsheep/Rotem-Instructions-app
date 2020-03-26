@@ -7,6 +7,7 @@ using UnityEngine;
 public class AssemblyManager : MonoBehaviour {
 
     public Transform CameraTrans;
+    public Camera ActiveCamera;
 
     public Database DatabaseRef;
     public HudController HudControllerRef;
@@ -30,6 +31,7 @@ public class AssemblyManager : MonoBehaviour {
     // Use this for initialization
     void Start() {
 
+        RemarksManagerRef.Init();
         DatabaseRef.Init();
         HudControllerRef.Init(DatabaseRef.GetChapters());
         
@@ -118,12 +120,22 @@ public class AssemblyManager : MonoBehaviour {
             Vector2 _curentPos = Input.mousePosition;
             Vector2 dir = _curentPos - _startTouch;
 
+            Vector3 initialAxis = AllPartsRoot.transform.position - ActiveCamera.ScreenToWorldPoint(new Vector3(_startTouch.x, _startTouch.y, 30f));
+            Vector3 finalAxis = AllPartsRoot.transform.position - ActiveCamera.ScreenToWorldPoint(new Vector3(_curentPos.x, _curentPos.y, 30f));
+            Debug.DrawLine(AllPartsRoot.transform.position - finalAxis, AllPartsRoot.transform.position);
 
-            double angle = Math.Atan2(dir.y, dir.x);
+            Quaternion rot = Quaternion.FromToRotation(initialAxis, finalAxis);
+            rot *= rot;
+            rot *= rot;
+            rot *= rot;
+           
+            AllPartsRoot.transform.rotation *= rot;
 
-            dir = Quaternion.Euler(0f, 0f, -90) * dir;
+            //double angle = Math.Atan2(dir.y, dir.x);
 
-            AllPartsRoot.transform.Rotate(dir, dir.magnitude);
+            //dir = Quaternion.Euler(0f, 0f, -90) * dir;
+
+            //AllPartsRoot.transform.Rotate(dir, dir.magnitude);
 
             _startTouch = _curentPos;
         }

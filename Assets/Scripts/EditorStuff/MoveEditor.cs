@@ -31,7 +31,6 @@ public class MoveEditor : MonoBehaviour
         }
     }
 
-#if UNITY_EDITOR
 
     internal void BuildGeometry(Transform allPartsRoot)
     {
@@ -78,7 +77,7 @@ public class MoveEditor : MonoBehaviour
         RemarkTransforms = new Transform[Remarks.Length];
         for (int i = 0; i < Remarks.Length; i++)
         {
-            RemarkTransforms[i] = transform.Find(RemarkTransformNames[i]);
+            RemarkTransforms[i] = partRoot.Find(RemarkTransformNames[i]);
         }
     }
 
@@ -240,9 +239,11 @@ public class MoveEditor : MonoBehaviour
         return true;
     }
 
+#if UNITY_EDITOR
     internal void CaptureCamera() {
         CameraPos = EditorWindow.GetWindow<SceneView>().camera.transform.position;
         CameraRot = EditorWindow.GetWindow<SceneView>().camera.transform.rotation;
     }
 #endif
+
 }

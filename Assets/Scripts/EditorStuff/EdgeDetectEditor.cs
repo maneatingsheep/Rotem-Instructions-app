@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-
+#if UNIYY_EDITOR
 [CustomEditor(typeof(EdgeDetect))] //1
 public class EdgeDetectEditor : Editor
 {
@@ -19,3 +19,4 @@ public class EdgeDetectEditor : Editor
         }
     }
 }
+#endif
