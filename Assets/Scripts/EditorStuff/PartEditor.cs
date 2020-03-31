@@ -6,8 +6,9 @@ public class PartEditor : MonoBehaviour
 {
 
     public string PartName;
-    public string[] StaticParts;
-
+    public string PrefabName;
+    public string[] PermanentTransforms;
+    
     public void Init()
     {
 

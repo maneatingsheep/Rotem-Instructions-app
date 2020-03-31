@@ -7,15 +7,15 @@ public class MoveEditor : MonoBehaviour
     internal Transform[] Transforms;
     internal Transform[] RemarkTransforms;
     
-    public string RootTransform;
     public string[] TransformNames;
     
     public string[] Remarks;
     public string[] RemarkTransformNames;
 
     public PosRot RelativeMove;
-    public Vector3 CameraPos;
-    public Quaternion CameraRot;
+    /*public Vector3 CameraPos;
+    public Quaternion CameraRot;*/
+    public Quaternion ViewRot;
 
     public bool DoResetAxis;
 
@@ -34,40 +34,16 @@ public class MoveEditor : MonoBehaviour
 
     internal void BuildGeometry(Transform allPartsRoot)
     {
-         
-        
-        Transform pf = Resources.Load<Transform>(RootTransform);
-
-        Transform partRoot = Instantiate<Transform>(pf);
-        //Resources.UnloadAsset(pf);
-
-
-        partRoot.name = RootTransform;
-
-        partRoot.SetParent(allPartsRoot);
-        
-       
 
         Transforms = new Transform[TransformNames.Length];
-        if (TransformNames.Length == 1)
-        {
-            if (partRoot.name == TransformNames[0])
-            {
-                Transforms[0] = partRoot;
-            }
-            else
-            {
-                Transforms[0] = partRoot.Find(TransformNames[0]);
-            }
 
-        }
-        else
+
+        for (int i = 0; i < TransformNames.Length; i++)
         {
-            for (int i = 0; i < TransformNames.Length; i++)
-            {
-                Transforms[i] = partRoot.Find(TransformNames[i]);
-            }
+            Transform fullpart = allPartsRoot.GetChild(0);
+            Transforms[i] = fullpart.Find(TransformNames[i]);
         }
+        
 
         if (DoResetAxis)
         {
@@ -77,19 +53,17 @@ public class MoveEditor : MonoBehaviour
         RemarkTransforms = new Transform[Remarks.Length];
         for (int i = 0; i < Remarks.Length; i++)
         {
-            RemarkTransforms[i] = partRoot.Find(RemarkTransformNames[i]);
+            RemarkTransforms[i] = allPartsRoot.Find(RemarkTransformNames[i]);
         }
     }
 
     public void ResetAxis() {
 
-        Transform localRoot = Transforms[0];
-        while (localRoot.parent != Transforms[0].root) {
-            localRoot = localRoot.parent;
+        for (int i = 0; i < Transforms.Length; i++) {
+            ResetSingleRotationScale(Transforms[i]);
+            ResetSinglePart(Transforms[i], this);
         }
-
-        ResetSingleRotationScale(localRoot);
-        ResetSinglePart(localRoot, this);
+        
     }
 
     
@@ -158,12 +132,14 @@ public class MoveEditor : MonoBehaviour
 
                     avg += adjusted[i];*/
 
-                    avg += children[i].localPosition;
+    avg += children[i].localPosition;
                     realChildCount++;
                 }
             }
 
             avg /= realChildCount;
+
+            
 
             /*for (int j = 0; j < adjusted.Length; j++) {
                 adjusted[j] -= avg;
@@ -182,24 +158,26 @@ public class MoveEditor : MonoBehaviour
             t.localPosition += avg;
 
         } else {
-            MeshFilter mesh = t.gameObject.GetComponent<MeshFilter>();
+            MeshFilter mf = t.gameObject.GetComponent<MeshFilter>();
             
-            if (mesh == null) {
+            if (mf == null) {
                 return false;
             }
             else
             {
                 //adjusted = new Vector3[mesh.sharedMesh.vertices.Length];
 
-                for (int j = 0; j < mesh.sharedMesh.vertices.Length; j++)
+                for (int j = 0; j < mf.sharedMesh.vertices.Length; j++)
                 {
                     //adjusted[j] = t.parent.InverseTransformPoint(t.TransformPoint(mesh.sharedMesh.vertices[j]));
                     //avg += adjusted[j];
-                    avg += t.parent.InverseTransformPoint(t.TransformPoint(mesh.sharedMesh.vertices[j]));
+                    //avg += t.parent.InverseTransformPoint(t.TransformPoint(mf.sharedMesh.vertices[j]));
+                    avg += t.TransformPoint(mf.sharedMesh.vertices[j]);
                 }
 
                 //avg /= adjusted.Length;
-                avg /= mesh.sharedMesh.vertices.Length;
+                avg /= mf.sharedMesh.vertices.Length;
+
 
                 /*for (int j = 0; j < adjusted.Length; j++)
                 {
@@ -241,9 +219,12 @@ public class MoveEditor : MonoBehaviour
 
 #if UNITY_EDITOR
     internal void CaptureCamera() {
-        CameraPos = EditorWindow.GetWindow<SceneView>().camera.transform.position;
-        CameraRot = EditorWindow.GetWindow<SceneView>().camera.transform.rotation;
+        /*CameraPos = EditorWindow.GetWindow<SceneView>().camera.transform.position;
+        CameraRot = EditorWindow.GetWindow<SceneView>().camera.transform.rotation;*/
+        
+        ViewRot = GameObject.Find("full part").transform.rotation;
     }
+    
 #endif
 
 }

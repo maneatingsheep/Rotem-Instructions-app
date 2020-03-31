@@ -41,29 +41,20 @@ public class Database : MonoBehaviour
             Destroy(AllPartsRoot.GetChild(i).gameObject);
         }
 
+        PartEditor pe = CurrentPartRoot.GetComponent<PartEditor>();
+
+        Transform pf = Resources.Load<Transform>(pe.PrefabName);
+
+        Transform partRoot = Instantiate<Transform>(pf);
+        partRoot.SetParent(AllPartsRoot);
+        partRoot.localRotation = Quaternion.identity;
+        
         CurrentPartRoot = transform.GetChild(currentPart);
 
-        string[] staticParts = CurrentPartRoot.GetComponent<PartEditor>().StaticParts;
 
-        AllPartsRoot.transform.position = CurrentPartRoot.position;
-        AllPartsRoot.rotation = Quaternion.identity;
+        /*AllPartsRoot.transform.position = CurrentPartRoot.position;
+        AllPartsRoot.rotation = Quaternion.identity;*/
 
-        for (int i = 0; i < staticParts.Length; i++)
-        {
-            Transform pf = Resources.Load<Transform>(staticParts[i]);
-
-            Transform partRoot = Instantiate<Transform>(pf);
-            //Resources.UnloadAsset(pf);
-
-
-            partRoot.name = staticParts[i];
-
-            partRoot.SetParent(AllPartsRoot);
-        }
-        
-
-
-        
 
         Move[] moves = new Move[CurrentPartRoot.childCount];
 
@@ -93,6 +84,11 @@ public class Database : MonoBehaviour
             }
         }
 
+        for (int i = 0; i < partRoot.childCount; i++) {
+            Transform child = partRoot.GetChild(i);
+            child.gameObject.SetActive(Array.Exists<string>(pe.PermanentTransforms, (s) => s == child.name));
+        }
+
         return moves;
     }
 
@@ -105,8 +101,9 @@ public class Database : MonoBehaviour
 
         Move m = new Move() { Transforms = me.Transforms };
 
-        m.CameraPos = me.CameraPos;
-        m.CameraRot = me.CameraRot;
+        /*m.CameraPos = me.CameraPos;
+        m.CameraRot = me.CameraRot;*/
+        m.ViewRot = me.ViewRot;
 
         m.Final = new PosRots();
         m.Initital = new PosRots();

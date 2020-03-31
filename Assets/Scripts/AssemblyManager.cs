@@ -15,12 +15,14 @@ public class AssemblyManager : MonoBehaviour {
     public Material PartMat;
 
     public Transform AllPartsRoot;
+    public Transform AllPartsRootRef;
 
     private int CurrentMove;
     private int CurrentPart;
 
-    public Vector3 InitialCamPos;
-    public Quaternion InitialCamRot;
+    /*public Vector3 InitialCamPos;
+    public Quaternion InitialCamRot;*/
+    public Quaternion InitialRotation;
 
     private Move[] _moves;
     private bool _doPlayAnimation;
@@ -202,8 +204,11 @@ public class AssemblyManager : MonoBehaviour {
         }
 
         if (doAnimate) {
-            
-            float moveTime = 1;
+
+            iTween.RotateTo(AllPartsRoot.gameObject, m.ViewRot.eulerAngles, 1f);
+            yield return new WaitForSeconds(1.1f);
+
+            /*float moveTime = 1;
 
             Vector3 startPos = CameraTrans.position;
             Quaternion startRot = CameraTrans.rotation;
@@ -212,16 +217,20 @@ public class AssemblyManager : MonoBehaviour {
             while (Time.time < start + moveTime) {
 
                 float prog = Mathf.Clamp((Time.time - start) / moveTime, 0, 1);
-                CameraTrans.localPosition = Vector3.Lerp(startPos, (CurrentMove > -1) ? (m.CameraPos) : (InitialCamPos), prog);
-                CameraTrans.localRotation = Quaternion.Slerp(startRot, (CurrentMove > -1) ? (m.CameraRot) : (InitialCamRot), prog);
+                AllPartsRoot.transform.rotation = Quaternion.Slerp(startRot, (CurrentMove > -1) ? (m.ViewRot) : (InitialRotation), prog);
+
+
+                //CameraTrans.localPosition = Vector3.Lerp(startPos, (CurrentMove > -1) ? (m.CameraPos) : (InitialCamPos), prog);
+                //CameraTrans.localRotation = Quaternion.Slerp(startRot, (CurrentMove > -1) ? (m.CameraRot) : (InitialCamRot), prog);
 
                 yield return null;
-            }
+            }*/
         }
-        
 
-        CameraTrans.localPosition = (CurrentMove > -1) ? (m.CameraPos) : (InitialCamPos);
-        CameraTrans.localRotation = (CurrentMove > -1) ? (m.CameraRot) : (InitialCamRot);
+        AllPartsRoot.transform.rotation = (CurrentMove > -1) ? (m.ViewRot) : (InitialRotation);
+
+        //CameraTrans.localPosition = (CurrentMove > -1) ? (m.CameraPos) : (InitialCamPos);
+        //CameraTrans.localRotation = (CurrentMove > -1) ? (m.CameraRot) : (InitialCamRot);
     }
 
     private void ResetToCurrentMove(bool doResetFreeRotation) {
@@ -345,8 +354,11 @@ public class AssemblyManager : MonoBehaviour {
     }
 #if UNITY_EDITOR
     internal void CaptureCamera() {
-        InitialCamPos = EditorWindow.GetWindow<SceneView>().camera.transform.position;
-        InitialCamRot = EditorWindow.GetWindow<SceneView>().camera.transform.rotation;
+        
+        InitialRotation = AllPartsRootRef.transform.rotation;
+
+        /*InitialCamPos = EditorWindow.GetWindow<SceneView>().camera.transform.position;
+        InitialCamRot = EditorWindow.GetWindow<SceneView>().camera.transform.rotation;*/
     }
 
     internal void ApplyMat() {

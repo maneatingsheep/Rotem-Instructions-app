@@ -11,8 +11,10 @@ internal class Move {
     public string[] Remarks;
     internal PosRots Initital;
     internal PosRots Final;
-    internal Vector3 CameraPos;
-    internal Quaternion CameraRot;
+    /*internal Vector3 CameraPos;
+    internal Quaternion CameraRot;*/
+    internal Quaternion ViewRot;
+    
 }
 
 internal class PosRots {
