@@ -20,8 +20,6 @@ public class AssemblyManager : MonoBehaviour {
     private int CurrentMove;
     private int CurrentPart;
 
-    /*public Vector3 InitialCamPos;
-    public Quaternion InitialCamRot;*/
     public Quaternion InitialRotation;
 
     private Move[] _moves;
@@ -30,7 +28,7 @@ public class AssemblyManager : MonoBehaviour {
     private Vector2 _startTouch;
     private bool _isTouching = false;
 
-    // Use this for initialization
+    
     void Start() {
 
         RemarksManagerRef.Init();
@@ -235,12 +233,14 @@ public class AssemblyManager : MonoBehaviour {
 
     private void ResetToCurrentMove(bool doResetFreeRotation) {
 
+        
         if (doResetFreeRotation) {
             AllPartsRoot.transform.rotation = Quaternion.identity;
         }
 
-        if (CurrentMove != -1) {
 
+        //remarks
+        if (CurrentMove != -1) {
             if (_moves[CurrentMove].Submoves != null) {
                 RemarksManagerRef.SetRemarks(_moves[CurrentMove].Submoves[0]);
             } else {
@@ -251,7 +251,7 @@ public class AssemblyManager : MonoBehaviour {
             RemarksManagerRef.SetRemarks(null);
         }
         
-
+        //reset moves
         for (int i = 0; i < _moves.Length; i++) {
             Move m = _moves[i];
             if (m.Submoves != null) {
@@ -263,16 +263,41 @@ public class AssemblyManager : MonoBehaviour {
             }
         }
 
+        //assembly visibility
+        for (int i = 0; i < DatabaseRef.Part.Assemblies.Length; i++) {
+            if (CurrentMove == -1 || DatabaseRef.Part.Assemblies[i].Name == _moves[CurrentMove].Assembly || Array.Exists<string>(_moves[CurrentMove].SupportingAssemblies, (s) => (DatabaseRef.Part.Assemblies[i].Name == s))) {
+                Transform assemblyTr = AllPartsRoot.Find(DatabaseRef.Part.Assemblies[i].Name);
+                assemblyTr.gameObject.SetActive(true);
+                for (int j = 0; j < DatabaseRef.Part.Assemblies[i].StaticParts.Length; j++) {
+                    assemblyTr.Find(DatabaseRef.Part.Assemblies[i].StaticParts[j]).gameObject.SetActive(true);
+                }
+            } else {
+                AllPartsRoot.Find(DatabaseRef.Part.Assemblies[i].Name).gameObject.SetActive(false);
+            }
+        }
+
+
     }
 
     private void ResetSingleMove(Move m, int movenum) {
+
+        bool isSupportingAssembly = false;
+
+        if (CurrentMove > -1) {
+            isSupportingAssembly = Array.Exists<string>(_moves[CurrentMove].SupportingAssemblies, (s) => s == m.Assembly);
+        }
+
+         
+
+
         for (int j = 0; j < m.Transforms.Length; j++) {
             Transform t = m.Transforms[j];
-            if (movenum > CurrentMove && (CurrentMove != -1)) {
+
+            if (!isSupportingAssembly && movenum > CurrentMove && (CurrentMove != -1)) {
                 t.gameObject.SetActive(false);
             } else {
                 t.gameObject.SetActive(true);
-                if (CurrentMove == -1 || movenum < CurrentMove) {
+                if (CurrentMove == -1 || isSupportingAssembly || movenum < CurrentMove) {
                     t.localPosition = m.Final.Pos[j];
                     t.localRotation = m.Final.Rot[j];
                 } else {
@@ -357,8 +382,6 @@ public class AssemblyManager : MonoBehaviour {
         
         InitialRotation = AllPartsRootRef.transform.rotation;
 
-        /*InitialCamPos = EditorWindow.GetWindow<SceneView>().camera.transform.position;
-        InitialCamRot = EditorWindow.GetWindow<SceneView>().camera.transform.rotation;*/
     }
 
     internal void ApplyMat() {

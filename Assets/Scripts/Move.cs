@@ -11,10 +11,13 @@ internal class Move {
     public string[] Remarks;
     internal PosRots Initital;
     internal PosRots Final;
-    /*internal Vector3 CameraPos;
-    internal Quaternion CameraRot;*/
     internal Quaternion ViewRot;
-    
+
+    private string _assembly;
+    private string[] _supportingAssemblies;
+
+    public string[] SupportingAssemblies { get => (Submoves != null)?(Submoves[0].SupportingAssemblies) :_supportingAssemblies; set => _supportingAssemblies = value; }
+    public string Assembly { get => (Submoves != null) ?(Submoves[0]._assembly) : _assembly; set => _assembly = value; }
 }
 
 internal class PosRots {

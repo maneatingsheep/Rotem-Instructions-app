@@ -6,9 +6,8 @@ using UnityEngine;
 public class Database : MonoBehaviour
 {
     public Transform AllPartsRoot;
-    public Transform CurrentPartRoot;
+    public PartEditor Part;
 
-    // Start is called before the first frame update
     void Start()
     {
         
@@ -34,60 +33,73 @@ public class Database : MonoBehaviour
 
     internal Move[] BuildMoves(int currentPart)
     {
-
-        //while (AllPartsRoot.childCount > 0)
+        //clear previous parts
         for (int i = 0; i < AllPartsRoot.childCount; i++)
         {
             Destroy(AllPartsRoot.GetChild(i).gameObject);
         }
 
-        PartEditor pe = CurrentPartRoot.GetComponent<PartEditor>();
+        //create empty assemblies
+        for (int i = 0; i < Part.Assemblies.Length; i++) {
+            GameObject assemblyRoot = new GameObject(Part.Assemblies[i].Name);
+            assemblyRoot.transform.parent = AllPartsRoot;
+        }
 
-        Transform pf = Resources.Load<Transform>(pe.PrefabName);
+
+        
+        Transform pf = Resources.Load<Transform>(Part.PrefabName);
 
         Transform partRoot = Instantiate<Transform>(pf);
-        partRoot.SetParent(AllPartsRoot);
-        partRoot.localRotation = Quaternion.identity;
-        
-        CurrentPartRoot = transform.GetChild(currentPart);
+
+        for (int i = partRoot.childCount - 1; i >= 0 ; i--) {
+            Transform child = partRoot.GetChild(i);
+            child.parent = AllPartsRoot;
+            child.gameObject.SetActive(false);
+        }
+        Destroy(partRoot.gameObject);
+
+        //add static parts to assemblys
+        for (int i = 0; i < Part.Assemblies.Length; i++) {
+            Transform ar = AllPartsRoot.Find(Part.Assemblies[i].Name);
+            for (int j = 0; j < Part.Assemblies[i].StaticParts.Length; j++) {
+                AllPartsRoot.Find(Part.Assemblies[i].StaticParts[j]).parent = ar;
+            }
+        }
 
 
-        /*AllPartsRoot.transform.position = CurrentPartRoot.position;
-        AllPartsRoot.rotation = Quaternion.identity;*/
 
+        Move[] moves = new Move[Part.transform.childCount];
 
-        Move[] moves = new Move[CurrentPartRoot.childCount];
-
-        for (int i = 0; i < CurrentPartRoot.childCount; i++)
+        for (int i = 0; i < Part.transform.childCount; i++)
         {
 
-            Transform child = CurrentPartRoot.GetChild(i);
+            Transform child = Part.transform.GetChild(i);
 
 
             if (child.childCount > 0)
             {
 
+
+                //build submoves
                 moves[i] = new Move() { Submoves = new Move[child.childCount] };
-
-
 
                 for (int j = 0; j < child.childCount; j++)
                 {
                     MoveEditor me = child.GetChild(j).GetComponent<MoveEditor>();
                     moves[i].Submoves[j] = BuildMove(me);
+                    
+                    
                 }
+
             }
             else
             {
-
+                //build single move/submove
                 moves[i] = BuildMove(child.GetComponent<MoveEditor>());
             }
         }
 
-        for (int i = 0; i < partRoot.childCount; i++) {
-            Transform child = partRoot.GetChild(i);
-            child.gameObject.SetActive(Array.Exists<string>(pe.PermanentTransforms, (s) => s == child.name));
-        }
+        
 
         return moves;
     }
@@ -101,8 +113,6 @@ public class Database : MonoBehaviour
 
         Move m = new Move() { Transforms = me.Transforms };
 
-        /*m.CameraPos = me.CameraPos;
-        m.CameraRot = me.CameraRot;*/
         m.ViewRot = me.ViewRot;
 
         m.Final = new PosRots();
@@ -122,6 +132,8 @@ public class Database : MonoBehaviour
 
         m.RemarkTransforms = me.RemarkTransforms;
         m.Remarks = me.Remarks;
+        m.Assembly = me.Assembly;
+        m.SupportingAssemblies = me.SupportingAssemblies;
 
         return m;
         
