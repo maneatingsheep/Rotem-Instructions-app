@@ -12,27 +12,54 @@ public class AssemblyManager : MonoBehaviour {
     public Database DatabaseRef;
     public HudController HudControllerRef;
     public RemarksManager RemarksManagerRef;
-    public Material PartMat;
 
     public Transform AllPartsRoot;
-    public Transform AllPartsRootRef;
+    public Transform RotatorCont;
+
+
+    public Material PartMaterial;
+    public Color OpaqueColor;
+    public Color TransparentColor;
 
     private int CurrentMove;
     private int CurrentPart;
 
-    public Quaternion InitialRotation;
+    bool _isAnimating = false;
 
     private Move[] _moves;
-    private bool _doPlayAnimation;
-
-    private Vector2 _startTouch;
-    private bool _isTouching = false;
-
     
+    private Vector3 _startTouch;
+    private bool _isTouching = false;
+    private Coroutine _animCR;
+
+    public float ANIMATION_TIME;
+    public float TRANSITION_TIME;
+    public float REST_TIME;
+
+    public float CamDistFromCenter;
+
     void Start() {
 
+        ActiveCamera.transform.position = new Vector3(0, 0, -CamDistFromCenter);
+
+        GameObject fp = GameObject.Find("full part");
+        if (fp != null) {
+            fp.SetActive(false);
+        }
+
+        fp = GameObject.Find("full unused");
+        if (fp != null) {
+            fp.SetActive(false);
+        }
+        
+    
+        fp = GameObject.Find("full used");
+        if (fp != null) {
+            fp.SetActive(false);
+        }
+
         RemarksManagerRef.Init();
-        DatabaseRef.Init();
+        DatabaseRef.Init(PartMaterial);
         HudControllerRef.Init(DatabaseRef.GetChapters());
         
 
@@ -53,118 +80,144 @@ public class AssemblyManager : MonoBehaviour {
         CurrentPart = chapter;
 
         _moves = DatabaseRef.BuildMoves(CurrentPart);
-        
-        ResetToCurrentMove(true);
-        UpdateHud();
+
+        StartCoroutine(ResetToCurrentMove(false));
         StartCoroutine(MoveCameraToCurrentMove(false));
+
+        UpdateHud();
     }
 
     private void ButtonPressed(HudController.ButtonType button) {
 
-        StopAllCoroutines();
-
+        StopAnimation();
         switch (button) {
             case HudController.ButtonType.StartPLaying:
-                _doPlayAnimation = true;
-                StartCoroutine(PlayCurrentMoveExternalAnimation());
-                UpdateHud();
+                StartAnimation(false);
                 break;
             case HudController.ButtonType.StopPLaying:
-                //StartCoroutine(PlayFullPart(false));
-                _doPlayAnimation = false;
-                ResetToCurrentMove(false);
-                UpdateHud();
-                StartCoroutine(MoveCameraToCurrentMove(false));
-
+                StopAnimation();
                 break;
             case HudController.ButtonType.OneBack:
                 if (CurrentMove > -1) {
                     CurrentMove--;
                 }
-                _doPlayAnimation = false;
-                ResetToCurrentMove(true);
-                UpdateHud();
-                StartCoroutine(MoveCameraToCurrentMove(false));
+
+                StartAnimation(true);
 
                 break;
             case HudController.ButtonType.OneForward:
                 if (CurrentMove < _moves.Length - 1) {
                     CurrentMove++;
                 }
-                _doPlayAnimation = false;
-                ResetToCurrentMove(true);
-                UpdateHud();
-                StartCoroutine(MoveCameraToCurrentMove(false));
 
+                StartAnimation(true);
                 break;
             case HudController.ButtonType.FullBack:
+                
                 CurrentMove = -1;
-                ResetToCurrentMove(true);
-                UpdateHud();
-                StartCoroutine(MoveCameraToCurrentMove(false));
+                StartCoroutine(ResetToCurrentMove(true));
+                StartCoroutine(MoveCameraToCurrentMove(true));
+
+                
 
                 break;
         }
+
+        UpdateHud();
+    }
+
+    private void StartAnimation(bool showTransition) {
+        _isAnimating = true;
+        if (showTransition) {
+            StartCoroutine(MoveCameraToCurrentMove(true));
+        }
+        _animCR =  StartCoroutine(PlayCurrentMoveContiniousAnimation(showTransition));
+    }
+
+    private void StopAnimation() {
+        if (_animCR != null) {
+            //StopCoroutine(_animCR);
+            StopAllCoroutines();
+            _animCR = null;
+        }
+        ResetToCurrentMove(false);
+        _isAnimating = false;
     }
 
     void Update() {
         if (Input.GetMouseButtonDown(0)) {
             _isTouching = true;
-            _startTouch = Input.mousePosition;
+            
         } else if (Input.GetMouseButtonUp(0)) {
             _isTouching = false;
         }
 
         if (_isTouching) {
+            Ray r = ActiveCamera.ScreenPointToRay(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1));
+            RaycastHit rh;
+            Vector3 _curentPos;
 
-            Vector2 _curentPos = Input.mousePosition;
-            Vector2 dir = _curentPos - _startTouch;
+            if (Physics.Raycast(r, out rh)) {
+                _curentPos = rh.point;
+                Debug.DrawLine(Vector3.zero, _startTouch);
+                Debug.DrawLine(Vector3.zero, _curentPos);
 
-            Vector3 initialAxis = AllPartsRoot.transform.position - ActiveCamera.ScreenToWorldPoint(new Vector3(_startTouch.x, _startTouch.y, 30f));
-            Vector3 finalAxis = AllPartsRoot.transform.position - ActiveCamera.ScreenToWorldPoint(new Vector3(_curentPos.x, _curentPos.y, 30f));
-            Debug.DrawLine(AllPartsRoot.transform.position - finalAxis, AllPartsRoot.transform.position);
+                /*Quaternion fromrot = Quaternion.LookRotation(_startTouch, Vector3.up);
+                Quaternion torot = Quaternion.LookRotation(_curentPos, Vector3.up);*/
 
-            Quaternion rot = Quaternion.FromToRotation(initialAxis, finalAxis);
-            rot *= rot;
-            rot *= rot;
-            rot *= rot;
-           
-            AllPartsRoot.transform.rotation *= rot;
+                RotatorCont.transform.localRotation = Quaternion.FromToRotation(_startTouch, _curentPos) * RotatorCont.transform.localRotation;
 
-            //double angle = Math.Atan2(dir.y, dir.x);
+                _startTouch = _curentPos;
 
-            //dir = Quaternion.Euler(0f, 0f, -90) * dir;
 
-            //AllPartsRoot.transform.Rotate(dir, dir.magnitude);
+            } else {
+                _isTouching = false;
 
-            _startTouch = _curentPos;
+            }
+
+            
         }
     }
 
+    private void OnMouseDown() {
+        Ray r = ActiveCamera.ScreenPointToRay(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1));
+        RaycastHit rh;
+        if (Physics.Raycast(r, out rh)) {
+            _isTouching = true;
+            _startTouch = rh.point;
+        }else {
+            _isTouching = false;
+        }
+    }
+
+    private void OnMouseExit() {
+        _isTouching = false;
+    }
+
+    private void OnMouseUp() {
+        _isTouching = false;
+    }
+
+    private IEnumerator PlayCurrentMoveContiniousAnimation(bool showTransition) {
 
 
-    private IEnumerator PlayCurrentMoveExternalAnimation() {
+        yield return StartCoroutine(ResetToCurrentMove(showTransition));
 
-
-
-        yield return StartCoroutine(MoveCameraToCurrentMove(CurrentMove > -1));
-
-        while (_doPlayAnimation) {
-
-            ResetToCurrentMove(false);
+        while (true) {
 
 
             if (CurrentMove > -1) {
 
+                yield return ResetToCurrentMove(false);
+                yield return new WaitForSeconds(REST_TIME);
 
-                yield return new WaitForSeconds(1);
 
-                yield return StartCoroutine(PlayCurrentMoveInternalAnimation());
+                yield return StartCoroutine(PlayCurrentMovePartAnimation());
 
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(REST_TIME);
             }
 
-            GoToCurrentMoveEnd();
+            //GoToCurrentMoveEnd();
 
         }
 
@@ -189,56 +242,52 @@ public class AssemblyManager : MonoBehaviour {
             usState = HudController.UIState.Middle;
         }
 
-        HudControllerRef.SetUIState(usState, _doPlayAnimation);
+        HudControllerRef.SetUIState(usState, _isAnimating);
     }
 
     private IEnumerator MoveCameraToCurrentMove(bool doAnimate) {
 
-        
 
-        Move m = null;
+        Quaternion rot = DatabaseRef.Part.InitialRotation;
+        Vector3 focalRelativePoint = Vector3.zero;
+        float camDist = DatabaseRef.Part.InitialCamDist;
+
+
         if (CurrentMove > -1) {
-            m = (_moves[CurrentMove].Submoves == null) ? _moves[CurrentMove] : _moves[CurrentMove].Submoves[0];
+            Move m = (_moves[CurrentMove].Submoves == null) ? _moves[CurrentMove] : _moves[CurrentMove].Submoves[0];
+            rot = m.ViewRot;
+
+            focalRelativePoint = m.ViewFocusPoint;
+            camDist = m.ViewCamDistance;
         }
+
 
         if (doAnimate) {
 
-            iTween.RotateTo(AllPartsRoot.gameObject, m.ViewRot.eulerAngles, 1f);
-            yield return new WaitForSeconds(1.1f);
+            AllPartsRoot.parent = AllPartsRoot.parent.parent;
+            RotatorCont.transform.position = AllPartsRoot.position + focalRelativePoint;
+            AllPartsRoot.parent = RotatorCont;
 
-            /*float moveTime = 1;
+            iTween.MoveTo(RotatorCont.gameObject, Vector3.zero, TRANSITION_TIME);
 
-            Vector3 startPos = CameraTrans.position;
-            Quaternion startRot = CameraTrans.rotation;
+            iTween.MoveTo(RotatorCont.gameObject, new Vector3(0, 0, camDist - 10), TRANSITION_TIME);
 
-            float start = Time.time;
-            while (Time.time < start + moveTime) {
+            iTween.RotateTo(RotatorCont.gameObject, rot.eulerAngles, TRANSITION_TIME);
+            yield return new WaitForSeconds(TRANSITION_TIME + REST_TIME);
 
-                float prog = Mathf.Clamp((Time.time - start) / moveTime, 0, 1);
-                AllPartsRoot.transform.rotation = Quaternion.Slerp(startRot, (CurrentMove > -1) ? (m.ViewRot) : (InitialRotation), prog);
-
-
-                //CameraTrans.localPosition = Vector3.Lerp(startPos, (CurrentMove > -1) ? (m.CameraPos) : (InitialCamPos), prog);
-                //CameraTrans.localRotation = Quaternion.Slerp(startRot, (CurrentMove > -1) ? (m.CameraRot) : (InitialCamRot), prog);
-
-                yield return null;
-            }*/
+        } else {
+            RotatorCont.position = Vector3.zero;
+            RotatorCont.transform.position = new Vector3(0, 0, camDist - CamDistFromCenter);
+            RotatorCont.transform.rotation = rot;
         }
 
-        AllPartsRoot.transform.rotation = (CurrentMove > -1) ? (m.ViewRot) : (InitialRotation);
 
         //CameraTrans.localPosition = (CurrentMove > -1) ? (m.CameraPos) : (InitialCamPos);
         //CameraTrans.localRotation = (CurrentMove > -1) ? (m.CameraRot) : (InitialCamRot);
     }
 
-    private void ResetToCurrentMove(bool doResetFreeRotation) {
-
+    private IEnumerator ResetToCurrentMove(bool showTransition) {
         
-        if (doResetFreeRotation) {
-            AllPartsRoot.transform.rotation = Quaternion.identity;
-        }
-
-
         //remarks
         if (CurrentMove != -1) {
             if (_moves[CurrentMove].Submoves != null) {
@@ -256,10 +305,10 @@ public class AssemblyManager : MonoBehaviour {
             Move m = _moves[i];
             if (m.Submoves != null) {
                 for (int j = 0; j < m.Submoves.Length; j++) {
-                    ResetSingleMove(m.Submoves[j], i);
+                    ResetSingleMove(m.Submoves[j], i, showTransition);
                 }
             } else {
-                ResetSingleMove(m, i);
+                ResetSingleMove(m, i, showTransition);
             }
         }
 
@@ -276,27 +325,31 @@ public class AssemblyManager : MonoBehaviour {
             }
         }
 
-
+        if (showTransition) {
+            yield return new WaitForSeconds(TRANSITION_TIME);
+        }
     }
 
-    private void ResetSingleMove(Move m, int movenum) {
+    private void ResetSingleMove(Move m, int movenum, bool doFade) {
 
         bool isSupportingAssembly = false;
-
+        
         if (CurrentMove > -1) {
             isSupportingAssembly = Array.Exists<string>(_moves[CurrentMove].SupportingAssemblies, (s) => s == m.Assembly);
         }
 
-         
 
 
         for (int j = 0; j < m.Transforms.Length; j++) {
-            Transform t = m.Transforms[j];
 
-            if (!isSupportingAssembly && movenum > CurrentMove && (CurrentMove != -1)) {
-                t.gameObject.SetActive(false);
-            } else {
-                t.gameObject.SetActive(true);
+            
+
+            Transform t = m.Transforms[j];
+            bool isVisible = false;
+            if (isSupportingAssembly || movenum <= CurrentMove || CurrentMove == -1) {
+                
+                isVisible = true;
+                
                 if (CurrentMove == -1 || isSupportingAssembly || movenum < CurrentMove) {
                     t.localPosition = m.Final.Pos[j];
                     t.localRotation = m.Final.Rot[j];
@@ -305,10 +358,38 @@ public class AssemblyManager : MonoBehaviour {
                     t.localRotation = m.Initital.Rot[j];
                 }
             }
+
+            
+
+            if (t.childCount > 0) {
+                //dont turn it off here. assemblies turned on and off elswere
+                /*if (isVisible) {
+                    for (int i = 0; i < t.childCount; i++) {
+                        SetVisibility(t.GetChild(i), isVisible, doFade);
+                    }
+
+                }*/
+            } else {
+                SetVisibility(t, isVisible, doFade);
+            }
+
         }
     }
 
-    private void GoToCurrentMoveEnd() {
+    private void SetVisibility(Transform t, bool isVisible, bool doFade) {
+        Color c = (isVisible) ? OpaqueColor : TransparentColor;
+        t.gameObject.SetActive(isVisible);
+
+        /*if (doFade) {
+            iTween.ColorTo(t.gameObject, c, TRANSITION_TIME);
+            
+        } else {
+            t.GetComponent<MeshRenderer>().material.SetColor("_MainTexture", c);
+        }*/
+
+    }
+
+    /*private void GoToCurrentMoveEnd() {
         if (CurrentMove > -1) {
             Move m = _moves[CurrentMove];
             if (m.Submoves != null) {
@@ -338,23 +419,23 @@ public class AssemblyManager : MonoBehaviour {
             
         }
         
-    }
+    }*/
 
-    private void GoToSingleMoveEnd(Move m) {
+    /*private void GoToSingleMoveEnd(Move m) {
         for (int i = 0; i < m.Transforms.Length; i++) {
             Transform t = m.Transforms[i];
             t.localPosition = m.Final.Pos[i];
             t.localRotation = m.Final.Rot[i];
         }
-    }
+    }*/
 
-    private IEnumerator PlayCurrentMoveInternalAnimation() {
+    private IEnumerator PlayCurrentMovePartAnimation() {
         Move m = _moves[CurrentMove];
         if (m.Submoves != null) {
             for (int j = 0; j < m.Submoves.Length; j++) {
                 yield return StartCoroutine(PlaySingleSubMoveAnimation(m.Submoves[j]));
                 if (j < m.Submoves.Length - 1) {
-                    yield return new WaitForSeconds(1);
+                    yield return new WaitForSeconds(REST_TIME);
                 }
             }
         } else {
@@ -363,32 +444,24 @@ public class AssemblyManager : MonoBehaviour {
     }
 
     private IEnumerator PlaySingleSubMoveAnimation(Move m) {
-        float moveTime = 1;
-
+        
         float start = Time.time;
-        while (Time.time < start + moveTime) {
+        while (Time.time < start + ANIMATION_TIME) {
             for (int i = 0; i < m.Transforms.Length; i++) {
                 Transform t = m.Transforms[i];
-                float prog = Mathf.Clamp((Time.time - start) / moveTime, 0, 1);
+                float prog = Mathf.Clamp((Time.time - start) / ANIMATION_TIME, 0, 1);
                 t.localPosition = Vector3.Lerp(m.Initital.Pos[i], m.Final.Pos[i], prog);
                 t.localRotation = Quaternion.Slerp(m.Initital.Rot[i], m.Final.Rot[i], prog);
             }
 
             yield return null;
         }
-    }
-#if UNITY_EDITOR
-    internal void CaptureCamera() {
-        
-        InitialRotation = AllPartsRootRef.transform.rotation;
+
+        for (int i = 0; i < m.Transforms.Length; i++) {
+            Transform t = m.Transforms[i];
+            t.localPosition = m.Final.Pos[i];
+            t.localRotation = m.Final.Rot[i];
+        }
 
     }
-
-    internal void ApplyMat() {
-        DatabaseRef.ApplyMat(PartMat);
-    }
-
-    
-
-#endif
 }

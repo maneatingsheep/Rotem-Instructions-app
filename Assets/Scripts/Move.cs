@@ -12,6 +12,8 @@ internal class Move {
     internal PosRots Initital;
     internal PosRots Final;
     internal Quaternion ViewRot;
+    public Vector3 ViewFocusPoint;
+    public float ViewCamDistance;
 
     private string _assembly;
     private string[] _supportingAssemblies;

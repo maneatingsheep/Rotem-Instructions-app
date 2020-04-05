@@ -15,13 +15,27 @@ public class MoveCustomEditor : Editor {
 
         MoveEditor Move = (MoveEditor)target;
 
-        if (GUILayout.Button("Nullify")) {
-            Move.ResetAxis();
+        if (GUILayout.Button("Capture Part Rotation")) {
+            Move.CapturePartRotation();
         }
 
-        if (GUILayout.Button("Cam Capture")){
-            Move.CaptureCamera();
+        if (GUILayout.Button("Apply Part Rotation")) {
+            Move.ApplyPartRotation();
         }
+
+        if (GUILayout.Button("Capture Focus Point")) {
+            Move.CapturePartFocus();
+        }
+
+        if (GUILayout.Button("Apply Focus Point")) {
+            Move.ApplyPartFocus();
+        }
+
+        if (GUILayout.Button("Capture Transforms By Names")) {
+            Move.CaptureTransformsbyNames();
+        }
+
+
     }
 }
 

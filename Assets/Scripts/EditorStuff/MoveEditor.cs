@@ -13,7 +13,10 @@ public class MoveEditor : MonoBehaviour
     public string[] RemarkTransformNames;
 
     public PosRot RelativeMove;
+    
     public Quaternion ViewRot;
+    public Vector3 ViewFocus;
+    public float ViewCamDistance;
 
     public string Assembly;
     public string[] SupportingAssemblies;
@@ -32,8 +35,7 @@ public class MoveEditor : MonoBehaviour
         }
     }
 
-
-    internal void BuildGeometry(Transform allPartsRoot)
+    internal void BuildGeometry(Transform allPartsRoot, PartEditor part)
     {
 
         Transforms = new Transform[TransformNames.Length];
@@ -41,9 +43,19 @@ public class MoveEditor : MonoBehaviour
 
         for (int i = 0; i < TransformNames.Length; i++)
         {
+            bool isAssembly = false;
+            for (int j = 0; j < part.Assemblies.Length; j++) {
+                isAssembly |= (part.Assemblies[j].Name == TransformNames[i]);
+            }
+
+            
+
             Transforms[i] = allPartsRoot.Find(TransformNames[i]);
             
-            Transforms[i].parent = allPartsRoot.Find(Assembly);
+            if (!isAssembly) {
+                Transforms[i].parent = allPartsRoot.Find(Assembly);
+            }
+            
         }
         
 
@@ -156,6 +168,7 @@ public class MoveEditor : MonoBehaviour
                 GameObject container = new GameObject();
                 container.transform.parent = t.parent;
                 container.transform.position = avg;
+                container.transform.localRotation = Quaternion.identity;
                 t.parent = container.transform;
                 t.gameObject.SetActive(true);
                 for (int i = 0; i < me.Transforms.Length; i++)
@@ -177,11 +190,37 @@ public class MoveEditor : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    internal void CaptureCamera() {
+    internal void CapturePartRotation() {
         
         ViewRot = GameObject.Find("full part").transform.rotation;
     }
-    
+
+    internal void ApplyPartRotation() {
+
+        GameObject.Find("full part").transform.rotation = ViewRot;
+    }
+
+    internal void CapturePartFocus() {
+
+        ViewFocus = GameObject.Find("full part").transform.position * -1;
+        ViewCamDistance = -GameObject.Find("Edge Detection Camera").transform.position.z;
+    }
+
+    internal void ApplyPartFocus() {
+
+        GameObject.Find("full part").transform.rotation = ViewRot;
+    }
+
+    internal void CaptureTransformsbyNames() {
+        GameObject[] objects = Selection.gameObjects;
+        TransformNames = new string[objects.Length];
+        
+        for (int i = 0; i < objects.Length; i++) {
+            TransformNames[i] = objects[i].name;
+        }
+
+    }
+
 #endif
 
 }

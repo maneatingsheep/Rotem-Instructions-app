@@ -7,15 +7,16 @@ public class Database : MonoBehaviour
 {
     public Transform AllPartsRoot;
     public PartEditor Part;
-
+    private Material _partMaterial;
     void Start()
     {
         
     }
 
-    internal void Init() {
+    internal void Init(Material partMaterial) {
+        _partMaterial = partMaterial;
 
-        
+
     }
 
 
@@ -43,6 +44,7 @@ public class Database : MonoBehaviour
         for (int i = 0; i < Part.Assemblies.Length; i++) {
             GameObject assemblyRoot = new GameObject(Part.Assemblies[i].Name);
             assemblyRoot.transform.parent = AllPartsRoot;
+            assemblyRoot.transform.localRotation = Quaternion.identity;
         }
 
 
@@ -53,7 +55,10 @@ public class Database : MonoBehaviour
 
         for (int i = partRoot.childCount - 1; i >= 0 ; i--) {
             Transform child = partRoot.GetChild(i);
+            child.GetComponent<MeshRenderer>().material = _partMaterial;
+            Quaternion rot = child.localRotation;
             child.parent = AllPartsRoot;
+            child.localRotation = rot;
             child.gameObject.SetActive(false);
         }
         Destroy(partRoot.gameObject);
@@ -108,12 +113,15 @@ public class Database : MonoBehaviour
 
     private Move BuildMove(MoveEditor me) {
 
-        me.BuildGeometry(AllPartsRoot);
+        me.BuildGeometry(AllPartsRoot, Part);
 
 
         Move m = new Move() { Transforms = me.Transforms };
 
         m.ViewRot = me.ViewRot;
+        m.ViewFocusPoint = me.ViewFocus;
+        m.ViewCamDistance = me.ViewCamDistance;
+
 
         m.Final = new PosRots();
         m.Initital = new PosRots();
