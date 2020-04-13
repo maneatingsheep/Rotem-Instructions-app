@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3523400065902863166}
   - component: {fileID: 3523400065902863160}
   - component: {fileID: 3523400065902863161}
+  - component: {fileID: 2537421004785514173}
   m_Layer: 5
   m_Name: Remark
   m_TagString: Untagged
@@ -74,6 +75,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2537421004785514173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3523400065902863167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0182000f95c68b64dabc1831c9d9d2e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RemarkTextFld: {fileID: 6079975110578306539}
 --- !u!1 &8236596226363219029
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,21 +4,11 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(PartEditor))] 
-public class PartCustomEditor : Editor {
+[CustomEditor(typeof(Part))] 
+public class PartCustomEditor : CustomEditorGUI {
 
 
+    
 
-    public override void OnInspectorGUI() 
-    {
-
-        base.DrawDefaultInspector();
-
-        PartEditor pe = (PartEditor)target;
-
-        if (GUILayout.Button("Capture Camera")) {
-            pe.CaptureCamera();
-        }
-    }
 }
 #endif

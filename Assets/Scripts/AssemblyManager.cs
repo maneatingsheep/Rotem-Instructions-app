@@ -12,6 +12,7 @@ public class AssemblyManager : MonoBehaviour {
     public Database DatabaseRef;
     public HudController HudControllerRef;
     public RemarksManager RemarksManagerRef;
+    public InventoryManager InventoryManagerRef;
 
     public Transform AllPartsRoot;
     public Transform RotatorCont;
@@ -25,8 +26,6 @@ public class AssemblyManager : MonoBehaviour {
     private int CurrentPart;
 
     bool _isAnimating = false;
-
-    private Move[] _moves;
     
     private Vector3 _startTouch;
     private bool _isTouching = false;
@@ -60,7 +59,7 @@ public class AssemblyManager : MonoBehaviour {
 
         RemarksManagerRef.Init();
         DatabaseRef.Init(PartMaterial);
-        HudControllerRef.Init(DatabaseRef.GetChapters());
+        HudControllerRef.Init(DatabaseRef.GetParts());
         
 
         HudControllerRef.ButtonPressedCallback += ButtonPressed;
@@ -79,7 +78,7 @@ public class AssemblyManager : MonoBehaviour {
         CurrentMove = -1;
         CurrentPart = chapter;
 
-        _moves = DatabaseRef.BuildMoves(CurrentPart);
+        DatabaseRef.BuildMoves(CurrentPart);
 
         StartCoroutine(ResetToCurrentMove(false));
         StartCoroutine(MoveCameraToCurrentMove(false));
@@ -106,7 +105,7 @@ public class AssemblyManager : MonoBehaviour {
 
                 break;
             case HudController.ButtonType.OneForward:
-                if (CurrentMove < _moves.Length - 1) {
+                if (CurrentMove < DatabaseRef.Moves.Length - 1) {
                     CurrentMove++;
                 }
 
@@ -233,7 +232,7 @@ public class AssemblyManager : MonoBehaviour {
             usState = HudController.UIState.First;
 
         }
-        else if (CurrentMove == _moves.Length - 1)
+        else if (CurrentMove == DatabaseRef.Moves.Length - 1)
         {
             usState = HudController.UIState.Last;
         }
@@ -248,17 +247,16 @@ public class AssemblyManager : MonoBehaviour {
     private IEnumerator MoveCameraToCurrentMove(bool doAnimate) {
 
 
-        Quaternion rot = DatabaseRef.Part.InitialRotation;
+        Quaternion rot = DatabaseRef.PartData.InitialRotation;
         Vector3 focalRelativePoint = Vector3.zero;
-        float camDist = DatabaseRef.Part.InitialCamDist;
+        float camDist = DatabaseRef.PartData.InitialCamDist;
 
 
         if (CurrentMove > -1) {
-            Move m = (_moves[CurrentMove].Submoves == null) ? _moves[CurrentMove] : _moves[CurrentMove].Submoves[0];
-            rot = m.ViewRot;
+            rot = DatabaseRef.Moves[CurrentMove].ViewRot;
 
-            focalRelativePoint = m.ViewFocusPoint;
-            camDist = m.ViewCamDistance;
+            focalRelativePoint = DatabaseRef.Moves[CurrentMove].ViewFocusPoint;
+            camDist = DatabaseRef.Moves[CurrentMove].ViewCamDistance;
         }
 
 
@@ -282,46 +280,43 @@ public class AssemblyManager : MonoBehaviour {
         }
 
 
-        //CameraTrans.localPosition = (CurrentMove > -1) ? (m.CameraPos) : (InitialCamPos);
-        //CameraTrans.localRotation = (CurrentMove > -1) ? (m.CameraRot) : (InitialCamRot);
+       
     }
 
     private IEnumerator ResetToCurrentMove(bool showTransition) {
-        
+
+
+        if (CurrentMove > -1) {
+            InventoryManagerRef.UpdateInventory(DatabaseRef.Moves[CurrentMove]);
+        } else {
+            InventoryManagerRef.UpdateInventory(DatabaseRef.Moves);
+        }
+
         //remarks
         if (CurrentMove != -1) {
-            if (_moves[CurrentMove].Submoves != null) {
-                RemarksManagerRef.SetRemarks(_moves[CurrentMove].Submoves[0]);
-            } else {
+                       
+            RemarksManagerRef.SetRemarks(DatabaseRef.Moves[CurrentMove]);
             
-                RemarksManagerRef.SetRemarks(_moves[CurrentMove]);
-            } 
         } else {
             RemarksManagerRef.SetRemarks(null);
         }
-        
+
+
         //reset moves
-        for (int i = 0; i < _moves.Length; i++) {
-            Move m = _moves[i];
-            if (m.Submoves != null) {
-                for (int j = 0; j < m.Submoves.Length; j++) {
-                    ResetSingleMove(m.Submoves[j], i, showTransition);
-                }
-            } else {
-                ResetSingleMove(m, i, showTransition);
-            }
+        for (int i = 0; i < DatabaseRef.Moves.Length; i++) {
+            ResetSingleMove(DatabaseRef.Moves[i], i, showTransition);
         }
 
         //assembly visibility
-        for (int i = 0; i < DatabaseRef.Part.Assemblies.Length; i++) {
-            if (CurrentMove == -1 || DatabaseRef.Part.Assemblies[i].Name == _moves[CurrentMove].Assembly || Array.Exists<string>(_moves[CurrentMove].SupportingAssemblies, (s) => (DatabaseRef.Part.Assemblies[i].Name == s))) {
-                Transform assemblyTr = AllPartsRoot.Find(DatabaseRef.Part.Assemblies[i].Name);
+        for (int i = 0; i < DatabaseRef.PartData.Assemblies.Length; i++) {
+            if (CurrentMove == -1 || DatabaseRef.PartData.Assemblies[i].ElementName == DatabaseRef.Moves[CurrentMove].AssemblyName || Array.Exists<string>(DatabaseRef.Moves[CurrentMove].SupportingAssemblies, (s) => (DatabaseRef.PartData.Assemblies[i].ElementName == s))) {
+                Transform assemblyTr = AllPartsRoot.Find(DatabaseRef.PartData.Assemblies[i].ElementName);
                 assemblyTr.gameObject.SetActive(true);
-                for (int j = 0; j < DatabaseRef.Part.Assemblies[i].StaticParts.Length; j++) {
-                    assemblyTr.Find(DatabaseRef.Part.Assemblies[i].StaticParts[j]).gameObject.SetActive(true);
+                for (int j = 0; j < DatabaseRef.PartData.Assemblies[i].Transforms.Length; j++) {
+                    DatabaseRef.PartData.Assemblies[i].Transforms[j].gameObject.SetActive(true);
                 }
             } else {
-                AllPartsRoot.Find(DatabaseRef.Part.Assemblies[i].Name).gameObject.SetActive(false);
+                AllPartsRoot.Find(DatabaseRef.PartData.Assemblies[i].ElementName).gameObject.SetActive(false);
             }
         }
 
@@ -335,45 +330,45 @@ public class AssemblyManager : MonoBehaviour {
         bool isSupportingAssembly = false;
         
         if (CurrentMove > -1) {
-            isSupportingAssembly = Array.Exists<string>(_moves[CurrentMove].SupportingAssemblies, (s) => s == m.Assembly);
+            isSupportingAssembly = Array.Exists<string>(DatabaseRef.Moves[CurrentMove].SupportingAssemblies, (s) => s == m.AssemblyName);
         }
 
 
+        for (int i = 0; i < m.Transformations.Length; i++) {
+            for (int j = 0; j < m.Transformations[i].Elements.Transforms.Length; j++) {
 
-        for (int j = 0; j < m.Transforms.Length; j++) {
+                Transform t = m.Transformations[i].Elements.Transforms[j];
+                bool isVisible = false;
+                if (isSupportingAssembly || movenum <= CurrentMove || CurrentMove == -1) {
 
-            
+                    isVisible = true;
 
-            Transform t = m.Transforms[j];
-            bool isVisible = false;
-            if (isSupportingAssembly || movenum <= CurrentMove || CurrentMove == -1) {
-                
-                isVisible = true;
-                
-                if (CurrentMove == -1 || isSupportingAssembly || movenum < CurrentMove) {
-                    t.localPosition = m.Final.Pos[j];
-                    t.localRotation = m.Final.Rot[j];
-                } else {
-                    t.localPosition = m.Initital.Pos[j];
-                    t.localRotation = m.Initital.Rot[j];
-                }
-            }
-
-            
-
-            if (t.childCount > 0) {
-                //dont turn it off here. assemblies turned on and off elswere
-                /*if (isVisible) {
-                    for (int i = 0; i < t.childCount; i++) {
-                        SetVisibility(t.GetChild(i), isVisible, doFade);
+                    if (CurrentMove == -1 || isSupportingAssembly || movenum < CurrentMove) {
+                        t.localPosition = m.Transformations[i].Final.Pos[j];
+                        t.localRotation = m.Transformations[i].Final.Rot[j];
+                    } else {
+                        t.localPosition = m.Transformations[i].Initial.Pos[j];
+                        t.localRotation = m.Transformations[i].Initial.Rot[j];
                     }
+                }
 
-                }*/
-            } else {
-                SetVisibility(t, isVisible, doFade);
+
+
+                if (t.childCount > 0) {
+                    //dont turn it off here. assemblies turned on and off elswere
+                    /*if (isVisible) {
+                        for (int i = 0; i < t.childCount; i++) {
+                            SetVisibility(t.GetChild(i), isVisible, doFade);
+                        }
+
+                    }*/
+                } else {
+                    SetVisibility(t, isVisible, doFade);
+                }
+
             }
-
         }
+        
     }
 
     private void SetVisibility(Transform t, bool isVisible, bool doFade) {
@@ -430,37 +425,35 @@ public class AssemblyManager : MonoBehaviour {
     }*/
 
     private IEnumerator PlayCurrentMovePartAnimation() {
-        Move m = _moves[CurrentMove];
-        if (m.Submoves != null) {
-            for (int j = 0; j < m.Submoves.Length; j++) {
-                yield return StartCoroutine(PlaySingleSubMoveAnimation(m.Submoves[j]));
-                if (j < m.Submoves.Length - 1) {
-                    yield return new WaitForSeconds(REST_TIME);
-                }
+        Move m = DatabaseRef.Moves[CurrentMove];
+
+        for (int j = 0; j < m.Transformations.Length; j++) {
+            yield return StartCoroutine(PlaySingleSubMoveAnimation(m.Transformations[j]));
+            if (j < m.Transformations.Length - 1) {
+                yield return new WaitForSeconds(REST_TIME);
             }
-        } else {
-            yield return StartCoroutine(PlaySingleSubMoveAnimation(m));
         }
     }
 
-    private IEnumerator PlaySingleSubMoveAnimation(Move m) {
+    private IEnumerator PlaySingleSubMoveAnimation(Transformation tr) {
         
         float start = Time.time;
         while (Time.time < start + ANIMATION_TIME) {
-            for (int i = 0; i < m.Transforms.Length; i++) {
-                Transform t = m.Transforms[i];
+            for (int i = 0; i < tr.Elements.Transforms.Length; i++) {
+                Transform t = tr.Elements.Transforms[i];
                 float prog = Mathf.Clamp((Time.time - start) / ANIMATION_TIME, 0, 1);
-                t.localPosition = Vector3.Lerp(m.Initital.Pos[i], m.Final.Pos[i], prog);
-                t.localRotation = Quaternion.Slerp(m.Initital.Rot[i], m.Final.Rot[i], prog);
+                t.localPosition = Vector3.Lerp(tr.Initial.Pos[i], tr.Final.Pos[i], prog);
+                t.localRotation = Quaternion.Slerp(tr.Initial.Rot[i], tr.Final.Rot[i], prog);
             }
 
             yield return null;
         }
 
-        for (int i = 0; i < m.Transforms.Length; i++) {
-            Transform t = m.Transforms[i];
-            t.localPosition = m.Final.Pos[i];
-            t.localRotation = m.Final.Rot[i];
+        for (int i = 0; i < tr.Elements.Transforms.Length; i++) {
+            Transform t = tr.Elements.Transforms[i];
+
+            t.localPosition = tr.Final.Pos[i];
+            t.localRotation = tr.Final.Rot[i];
         }
 
     }
