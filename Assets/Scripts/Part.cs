@@ -20,24 +20,16 @@ public class Part : MonoBehaviour, EditorControlled {
 
 #if UNITY_EDITOR
 
-    void EditorControlled.CapturePartRotation() {
+    void EditorControlled.CapturePartView() {
 
         InitialRotation = GameObject.Find("full part").transform.rotation;
     }
 
-    void EditorControlled.ApplyPartRotation() {
+    void EditorControlled.ApplyPartView() {
 
         GameObject.Find("full part").transform.rotation = InitialRotation;
     }
 
-    void EditorControlled.CapturePartFocus() {
-        Debug.Log("Unavalible for assemblies");
-    }
-
-    void EditorControlled.ApplyPartFocus() {
-
-        GameObject.Find("full part").transform.rotation = InitialRotation;
-    }
 
     void EditorControlled.CaptureTransformsbyNames(int index, bool addToExistingList) {
         int boundIndex = Mathf.Clamp(index, 0, Assemblies.Length - 1);

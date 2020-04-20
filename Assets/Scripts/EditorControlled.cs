@@ -1,12 +1,9 @@
 ﻿
 public interface EditorControlled {
-    void CapturePartRotation();
+    void CapturePartView();
 
-    void ApplyPartRotation();
+    void ApplyPartView();
 
-    void CapturePartFocus();
-
-    void ApplyPartFocus();
 
     void CaptureTransformsbyNames(int index, bool addToExistingList);
 

@@ -39,26 +39,21 @@ public class Move : MonoBehaviour, EditorControlled {
     
 
 #if UNITY_EDITOR
-    void EditorControlled.CapturePartRotation() {
+    void EditorControlled.CapturePartView() {
         
         ViewRot = GameObject.Find("full part").transform.rotation;
-    }
-
-    void EditorControlled.ApplyPartRotation() {
-
-        GameObject.Find("full part").transform.rotation = ViewRot;
-    }
-
-    void EditorControlled.CapturePartFocus() {
-
         ViewFocusPoint = GameObject.Find("full part").transform.position * -1;
         ViewCamDistance = -GameObject.Find("Edge Detection Camera").transform.position.z;
     }
 
-    void EditorControlled.ApplyPartFocus() {
+    void EditorControlled.ApplyPartView() {
 
         GameObject.Find("full part").transform.rotation = ViewRot;
+        GameObject.Find("full part").transform.position = ViewFocusPoint * -1;
+        GameObject.Find("Edge Detection Camera").transform.position = new Vector3(0, 0, -ViewCamDistance);
     }
+
+   
 
     void EditorControlled.CaptureTransformsbyNames(int index, bool addToExistingList) {
         int boundIndex = Mathf.Clamp(index, 0, Transformations.Length - 1);

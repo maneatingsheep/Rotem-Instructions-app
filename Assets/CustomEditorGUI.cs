@@ -18,23 +18,13 @@ public class CustomEditorGUI :Editor{
 
         EditorControlled controlledElement = (EditorControlled)target;
 
-        if (GUILayout.Button("Capture Part Rotation")) {
-            controlledElement.CapturePartRotation();
+        if (GUILayout.Button("Capture Part View")) {
+            controlledElement.CapturePartView();
         }
 
-        if (GUILayout.Button("Apply Part Rotation")) {
-            controlledElement.ApplyPartRotation();
+        if (GUILayout.Button("Apply Part View")) {
+            controlledElement.ApplyPartView();
         }
-
-        if (GUILayout.Button("Capture Focus Point")) {
-            controlledElement.CapturePartFocus();
-        }
-
-        if (GUILayout.Button("Apply Focus Point")) {
-            controlledElement.ApplyPartFocus();
-        }
-
-
 
         TransformsCaptureUI(controlledElement, ref _isAddToList, ref _inputIndex, ref _inputIndexStr);
 

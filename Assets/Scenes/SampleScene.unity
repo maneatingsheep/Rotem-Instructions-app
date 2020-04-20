@@ -175,7 +175,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9fde7b5ca83cf8e428fe520d07b70fa2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d924a6dbf095025459fce78a6bab0214, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -228,7 +228,7 @@ RectTransform:
   - {fileID: 2050508916}
   - {fileID: 946163557}
   m_Father: {fileID: 1411133139}
-  m_RootOrder: 5
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -324,7 +324,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -98, y: -62.5}
+  m_AnchoredPosition: {x: -141.3, y: -92}
   m_SizeDelta: {x: 29, y: 27}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &98581355
@@ -448,7 +448,7 @@ RectTransform:
   m_Children:
   - {fileID: 180295048}
   m_Father: {fileID: 1411133139}
-  m_RootOrder: 7
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1670,7 +1670,7 @@ MonoBehaviour:
   Remarks: []
   ViewRot: {x: -0, y: -0.33591104, z: -0, w: 0.9418938}
   ViewFocusPoint: {x: 0, y: 0, z: 0}
-  ViewCamDistance: 6.73
+  ViewCamDistance: 8
   AssemblyName: A1
   SupportingAssemblies: []
 --- !u!1 &405980181
@@ -1685,7 +1685,7 @@ GameObject:
   - component: {fileID: 405980184}
   - component: {fileID: 405980183}
   m_Layer: 5
-  m_Name: Navigation
+  m_Name: NavigationList
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1707,12 +1707,12 @@ RectTransform:
   - {fileID: 780962988}
   - {fileID: 98581354}
   m_Father: {fileID: 1411133139}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -680, y: -1024}
-  m_SizeDelta: {x: 716, y: 2048}
+  m_AnchoredPosition: {x: -828.79004, y: -720}
+  m_SizeDelta: {x: 738.58, y: 1440}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &405980183
 MonoBehaviour:
@@ -1732,7 +1732,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9454da85b807c8b4ea5331e45576b95d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a6f4960399cb68642b9bbbfcf025f030, type: 3}
   m_Type: 1
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -1812,7 +1812,7 @@ RectTransform:
   m_Children:
   - {fileID: 118149817}
   m_Father: {fileID: 1411133139}
-  m_RootOrder: 2
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2144,7 +2144,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: c8ca231586cbfd2498913bf8ecbe67d7,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.09797001
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: c8ca231586cbfd2498913bf8ecbe67d7,
         type: 3}
@@ -2154,7 +2154,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: c8ca231586cbfd2498913bf8ecbe67d7,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.0054473914
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: c8ca231586cbfd2498913bf8ecbe67d7,
         type: 3}
@@ -2164,7 +2164,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: c8ca231586cbfd2498913bf8ecbe67d7,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.6428238
+      value: -0.7884485
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: c8ca231586cbfd2498913bf8ecbe67d7,
         type: 3}
@@ -2174,7 +2174,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: c8ca231586cbfd2498913bf8ecbe67d7,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7660141
+      value: 0.61510086
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: c8ca231586cbfd2498913bf8ecbe67d7,
         type: 3}
@@ -2189,7 +2189,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: c8ca231586cbfd2498913bf8ecbe67d7,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 80.005005
+      value: -104.08201
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: c8ca231586cbfd2498913bf8ecbe67d7,
         type: 3}
@@ -2366,8 +2366,8 @@ MonoBehaviour:
     DoResetAxis: 0
   Remarks: []
   ViewRot: {x: -0, y: -0.33591104, z: -0, w: 0.9418938}
-  ViewFocusPoint: {x: 0, y: 0, z: 0}
-  ViewCamDistance: 6.73
+  ViewFocusPoint: {x: -0.09797001, y: -0.68, z: -0.0054473914}
+  ViewCamDistance: 5.08
   AssemblyName: A0
   SupportingAssemblies: []
 --- !u!224 &611641356 stripped
@@ -2676,8 +2676,8 @@ MonoBehaviour:
     - ELC-30-0084-1 24.3.20 - ELC-30-0084-1-MP STEP2-1 ELC-30-008.017
     - ELC-30-0084-1 24.3.20 - ELC-30-0084-1-MP STEP2-1 ELC-30-008.018
   ViewRot: {x: -0, y: -0.33591104, z: -0, w: 0.9418938}
-  ViewFocusPoint: {x: 0, y: 0, z: 0}
-  ViewCamDistance: 6.73
+  ViewFocusPoint: {x: -0.09797001, y: -0.68, z: -0.0054473914}
+  ViewCamDistance: 5.08
   AssemblyName: A0
   SupportingAssemblies: []
 --- !u!1 &719211740
@@ -2741,9 +2741,9 @@ MonoBehaviour:
       PublicRot: {x: 0, y: 0, z: 0}
     DoResetAxis: 0
   Remarks: []
-  ViewRot: {x: -0, y: -0.33591104, z: -0, w: 0.9418938}
-  ViewFocusPoint: {x: 0, y: 0, z: 0}
-  ViewCamDistance: 6.73
+  ViewRot: {x: -0, y: -0.7884485, z: -0, w: 0.61510086}
+  ViewFocusPoint: {x: 0, y: -0, z: 0}
+  ViewCamDistance: 12
   AssemblyName: A2
   SupportingAssemblies:
   - A0
@@ -2885,7 +2885,7 @@ RectTransform:
   m_Children:
   - {fileID: 865133840}
   m_Father: {fileID: 1411133139}
-  m_RootOrder: 8
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
@@ -3105,8 +3105,8 @@ MonoBehaviour:
       PublicRot: {x: 0, y: 0, z: 0}
     DoResetAxis: 0
   Remarks: []
-  ViewRot: {x: -0, y: -0.33591104, z: -0, w: 0.9418938}
-  ViewFocusPoint: {x: 0, y: 0, z: 0}
+  ViewRot: {x: -0, y: -0.92063797, z: -0, w: 0.3904174}
+  ViewFocusPoint: {x: 0, y: -0.81, z: 0}
   ViewCamDistance: 6.73
   AssemblyName: A1
   SupportingAssemblies: []
@@ -3272,8 +3272,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0.892, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 25.1, y: -818}
+  m_AnchoredPosition: {x: 0, y: 0.000061035156}
+  m_SizeDelta: {x: 25.1, y: -650.19995}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &898274569
 MonoBehaviour:
@@ -3425,7 +3425,7 @@ RectTransform:
   - {fileID: 627763567}
   - {fileID: 177912459}
   m_Father: {fileID: 1411133139}
-  m_RootOrder: 6
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.95587325, y: 0.9662565}
   m_AnchorMax: {x: 0.95587325, y: 0.9662565}
@@ -3689,7 +3689,7 @@ RectTransform:
   m_Children:
   - {fileID: 528280578}
   m_Father: {fileID: 1411133139}
-  m_RootOrder: 3
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -3883,7 +3883,7 @@ MonoBehaviour:
       PublicRot: {x: 0, y: 0, z: 0}
     DoResetAxis: 0
   Remarks: []
-  ViewRot: {x: -0, y: -0.33591104, z: -0, w: 0.9418938}
+  ViewRot: {x: -0, y: -0.92063797, z: -0, w: 0.3904174}
   ViewFocusPoint: {x: 0, y: 0, z: 0}
   ViewCamDistance: 6.73
   AssemblyName: A1
@@ -3983,10 +3983,10 @@ RectTransform:
   m_Father: {fileID: 405980182}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -477, y: -76}
-  m_SizeDelta: {x: 235.7, y: 50.7}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 278.1, y: -133.75}
+  m_SizeDelta: {x: 228.6, y: 108.4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1313771342
 MonoBehaviour:
@@ -4008,11 +4008,11 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: f4997d35b9436974d88e3f21231f448f, type: 3}
-    m_FontSize: 37
+    m_FontSize: 50
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 3
-    m_MaxSize: 40
+    m_MinSize: 0
+    m_MaxSize: 296
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -4183,8 +4183,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1597269013}
   m_HandleRect: {fileID: 1597269012}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 1
+  m_Value: 1
+  m_Size: 0.98956263
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4259,7 +4259,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -20, y: -20}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1411133135
 GameObject:
@@ -4352,15 +4352,15 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
-  - {fileID: 1471262269}
-  - {fileID: 1525358428}
-  - {fileID: 461283499}
   - {fileID: 1105626707}
-  - {fileID: 405980182}
   - {fileID: 91538784}
+  - {fileID: 1471262269}
+  - {fileID: 405980182}
   - {fileID: 972708249}
   - {fileID: 101227933}
   - {fileID: 792836937}
+  - {fileID: 1525358428}
+  - {fileID: 461283499}
   - {fileID: 1700866749}
   m_Father: {fileID: 0}
   m_RootOrder: 3
@@ -4440,12 +4440,12 @@ RectTransform:
   - {fileID: 507348339}
   - {fileID: 1736766786}
   m_Father: {fileID: 1411133139}
-  m_RootOrder: 0
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.33376592, y: 1}
-  m_AnchoredPosition: {x: -0.00048828125, y: 0}
-  m_SizeDelta: {x: 0.0010071, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 427.25, y: 84}
+  m_SizeDelta: {x: 854.5, y: -167.8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1471262271
 MonoBehaviour:
@@ -4765,7 +4765,7 @@ RectTransform:
   m_Children:
   - {fileID: 1522620870}
   m_Father: {fileID: 1411133139}
-  m_RootOrder: 1
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -4858,7 +4858,7 @@ RectTransform:
   m_Father: {fileID: 110528062}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 0.010437369}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
@@ -4935,8 +4935,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000030517578, y: 0}
-  m_SizeDelta: {x: 0, y: -1793.2}
+  m_AnchoredPosition: {x: -0.000030517578, y: 0.00018310547}
+  m_SizeDelta: {x: 0, y: -707.19995}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1599374642
 MonoBehaviour:
@@ -4951,10 +4951,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: -206
-    m_Right: 0
+    m_Left: 0
+    m_Right: 25
     m_Top: 0
-    m_Bottom: 0
+    m_Bottom: 478
   m_ChildAlignment: 2
   m_Spacing: 0
   m_ChildForceExpandWidth: 0
@@ -5012,7 +5012,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
-  m_VerticalFit: 1
+  m_VerticalFit: 2
 --- !u!4 &1613288552 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4076891100568910, guid: 639ac7944bb681a42b4c77d9e38087af,
@@ -5669,10 +5669,10 @@ RectTransform:
   m_Father: {fileID: 405980182}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -283, y: -76}
-  m_SizeDelta: {x: 235.7, y: 50.7}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 536.57, y: -117.5}
+  m_SizeDelta: {x: 260.33, y: 75.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1990922383
 MonoBehaviour:
@@ -5694,11 +5694,11 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 679ee45bc24b93545945dcce44db42b5, type: 3}
-    m_FontSize: 37
+    m_FontSize: 50
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 3
-    m_MaxSize: 40
+    m_MaxSize: 59
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -5767,9 +5767,9 @@ MonoBehaviour:
       PublicRot: {x: 0, y: 0, z: 0}
     DoResetAxis: 0
   Remarks: []
-  ViewRot: {x: -0, y: -0.33591104, z: -0, w: 0.9418938}
+  ViewRot: {x: -0, y: -0.8725748, z: -0, w: 0.48848054}
   ViewFocusPoint: {x: 0, y: 0, z: 0}
-  ViewCamDistance: 6.73
+  ViewCamDistance: 11
   AssemblyName: A0
   SupportingAssemblies: []
 --- !u!1 &2050508915
