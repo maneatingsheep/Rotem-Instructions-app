@@ -7,6 +7,9 @@ public class InventoryManager : MonoBehaviour
 {
     public InventoryItem ItemPF;
 
+    public RectTransform SideInventory;
+    public RectTransform FullInventory;
+
     private List<InventoryItem> Items;
 
     public void Clear() {
@@ -36,7 +39,7 @@ public class InventoryManager : MonoBehaviour
         for (int i = 0; i < move.Transformations.Length; i++) {
             if (Items.Count < i + 1) {
                 Items.Add(Instantiate<InventoryItem>(ItemPF));
-                Items[i].transform.SetParent(transform, false);
+                Items[i].transform.SetParent(SideInventory, false);
             }
             Items[i].gameObject.SetActive(true);
             

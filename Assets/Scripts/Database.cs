@@ -22,18 +22,6 @@ public class Database : MonoBehaviour
     }
 
 
-    internal string[] GetParts()
-    {
-        string[] result = new string[transform.childCount];
-
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            result[i] = transform.GetChild(i).GetComponent<Part>().PartName;
-        }
-
-        return result;
-    }
-
     internal void BuildMoves(int currentPart)
     {
         //clear previous parts

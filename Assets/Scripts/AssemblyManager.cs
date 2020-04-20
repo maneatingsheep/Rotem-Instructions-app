@@ -10,7 +10,8 @@ public class AssemblyManager : MonoBehaviour {
     public Camera ActiveCamera;
 
     public Database DatabaseRef;
-    public HudController HudControllerRef;
+    public NavController NavControllerRef;
+    public MenuManager MenuManagerRef;
     public RemarksManager RemarksManagerRef;
     public InventoryManager InventoryManagerRef;
 
@@ -37,6 +38,7 @@ public class AssemblyManager : MonoBehaviour {
 
     public float CamDistFromCenter;
 
+
     void Start() {
 
         ActiveCamera.transform.position = new Vector3(0, 0, -CamDistFromCenter);
@@ -59,21 +61,20 @@ public class AssemblyManager : MonoBehaviour {
 
         RemarksManagerRef.Init();
         DatabaseRef.Init(PartMaterial);
-        HudControllerRef.Init(DatabaseRef.GetParts());
         
 
-        HudControllerRef.ButtonPressedCallback += ButtonPressed;
-        HudControllerRef.ChapterPressedCallback += LoadChapter; ;
+        NavControllerRef.ButtonPressedCallback += ButtonPressed;
+        MenuManagerRef.StepPressedCallback += GotoMove;
 
 
         LoadChapter(0);
     }
 
+
     private void LoadChapter(int chapter)
     {
         StopAllCoroutines();
 
-        RemarksManagerRef.OpenHideRemarks(true);
 
         CurrentMove = -1;
         CurrentPart = chapter;
@@ -83,46 +84,53 @@ public class AssemblyManager : MonoBehaviour {
         StartCoroutine(ResetToCurrentMove(false));
         StartCoroutine(MoveCameraToCurrentMove(false));
 
+        MenuManagerRef.Init(DatabaseRef.Moves);
         UpdateHud();
     }
 
-    private void ButtonPressed(HudController.ButtonType button) {
+    private void ButtonPressed(NavController.ButtonType button) {
 
-        StopAnimation();
+        
         switch (button) {
-            case HudController.ButtonType.StartPLaying:
+            case NavController.ButtonType.StartPLaying:
+                
                 StartAnimation(false);
                 break;
-            case HudController.ButtonType.StopPLaying:
+            case NavController.ButtonType.StopPLaying:
                 StopAnimation();
                 break;
-            case HudController.ButtonType.OneBack:
+            case NavController.ButtonType.OneBack:
                 if (CurrentMove > -1) {
-                    CurrentMove--;
+                    GotoMove(CurrentMove-1);
                 }
-
-                StartAnimation(true);
-
-                break;
-            case HudController.ButtonType.OneForward:
-                if (CurrentMove < DatabaseRef.Moves.Length - 1) {
-                    CurrentMove++;
-                }
-
-                StartAnimation(true);
-                break;
-            case HudController.ButtonType.FullBack:
                 
+
+                break;
+            case NavController.ButtonType.OneForward:
+                if (CurrentMove < DatabaseRef.Moves.Length - 1) {
+                    GotoMove(CurrentMove + 1);
+                }
+                break;
+            case NavController.ButtonType.FullBack:
+                StopAnimation();
                 CurrentMove = -1;
                 StartCoroutine(ResetToCurrentMove(true));
                 StartCoroutine(MoveCameraToCurrentMove(true));
 
-                
 
                 break;
         }
 
         UpdateHud();
+    }
+
+    private void GotoMove(int moveNum) {
+        if (!MenuManagerRef.isRemarksOpen) {
+            MenuManagerRef.RemarksToggled();
+        }
+        StopAnimation();
+        CurrentMove = moveNum;
+        StartAnimation(true);
     }
 
     private void StartAnimation(bool showTransition) {
@@ -225,23 +233,24 @@ public class AssemblyManager : MonoBehaviour {
 
     private void UpdateHud()
     {
-        HudController.UIState usState = HudController.UIState.Master;
+        NavController.UIState usState = NavController.UIState.Master;
 
         if (CurrentMove == 0)
         {
-            usState = HudController.UIState.First;
+            usState = NavController.UIState.First;
 
         }
         else if (CurrentMove == DatabaseRef.Moves.Length - 1)
         {
-            usState = HudController.UIState.Last;
+            usState = NavController.UIState.Last;
         }
         else if (CurrentMove > 0)
         {
-            usState = HudController.UIState.Middle;
+            usState = NavController.UIState.Middle;
         }
 
-        HudControllerRef.SetUIState(usState, _isAnimating);
+        NavControllerRef.SetUIState(usState, _isAnimating, CurrentMove, DatabaseRef.Moves.Length);
+        MenuManagerRef.UpdateToStepNum(CurrentMove);
     }
 
     private IEnumerator MoveCameraToCurrentMove(bool doAnimate) {
