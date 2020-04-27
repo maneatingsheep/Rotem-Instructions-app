@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: f288afbc997d0ba4486f144d59af898c
+guid: c7b22c7d0f8d6864db84debb190c23ca
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -13,6 +13,8 @@ TrueTypeFontImporter:
   - Raleway ExtraLight
   fallbackFontReferences:
   - {fileID: 12800000, guid: 70d24d59d1d7ef74894529d46e551da2, type: 3}
+  - {fileID: 12800000, guid: f288afbc997d0ba4486f144d59af898c, type: 3}
+  - {fileID: 12800000, guid: a1df8ccfbd077c541892ec6938baaca3, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1

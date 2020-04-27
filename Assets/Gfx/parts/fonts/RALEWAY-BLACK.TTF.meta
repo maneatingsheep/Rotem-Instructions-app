@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 520f0605c9bbfe642954b6ba4008472e
+guid: 57d4ba5ad1d090544bc665e78444ae45
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -11,7 +11,10 @@ TrueTypeFontImporter:
   fontName: Raleway Black
   fontNames:
   - Raleway Black
-  fallbackFontReferences: []
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 1ec46e70b5eb3e04a964280892ed48ec, type: 3}
+  - {fileID: 12800000, guid: 520f0605c9bbfe642954b6ba4008472e, type: 3}
+  - {fileID: 12800000, guid: fe8f349ac2b40924c99b99e32673e9c1, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class NavController : MonoBehaviour {
     public enum ButtonType { StartPLaying, StopPLaying, OneBack, OneForward, FullBack };
-    internal enum UIState { Master, First, Middle, Last };
+    internal enum UIState { Home, First, Middle, Last };
 
     public Action<ButtonType> ButtonPressedCallback;
     
@@ -15,7 +15,10 @@ public class NavController : MonoBehaviour {
     public Button StopPlaying;
     public Button OneBack;
     public Button OneForward;
-    public Button FullBack;
+    
+    
+    public Button HomeButt;
+    public Button LogoutButt;
 
     public Text MoveNumFld;
 
@@ -32,24 +35,24 @@ public class NavController : MonoBehaviour {
             ButtonPressedCallback(ButtonType.OneBack);
         } else if (sender == OneForward) {
             ButtonPressedCallback(ButtonType.OneForward);
-        } else if (sender == FullBack) {
+        } else if (sender == HomeButt) {
             ButtonPressedCallback(ButtonType.FullBack);
         }
     }
 
     internal void SetUIState(UIState state, bool InPlay, int currnetStep, int totalSteps) {
-        StartPlaying.interactable = (state != UIState.Master);
+        /*StartPlaying.interactable = (state != UIState.Master);
         StartPlaying.gameObject.SetActive(!InPlay);
-        StopPlaying.gameObject.SetActive(InPlay);
-        OneBack.interactable = (state != UIState.First && state != UIState.Master);
+        StopPlaying.gameObject.SetActive(InPlay);*/
+        OneBack.interactable = (state != UIState.First && state != UIState.Home);
         OneForward.interactable = (state != UIState.Last);
-        FullBack.interactable = (state != UIState.Master);
+        HomeButt.gameObject.SetActive(state != UIState.Home);
+        LogoutButt.gameObject.SetActive(state == UIState.Home);
 
-        if (currnetStep >= 0) {
-            MoveNumFld.text = string.Format("{0}/{1}", currnetStep + 1, totalSteps);
-
-        } else {
+        if (state == UIState.Home) {
             MoveNumFld.text = "HOME";
+        } else {
+            MoveNumFld.text = string.Format("{0}/{1}", currnetStep + 1, totalSteps);
         }
     }
 }

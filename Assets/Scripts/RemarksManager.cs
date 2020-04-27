@@ -94,6 +94,7 @@ public class RemarksManager : MonoBehaviour {
             for (int i = 0; i < _remarksData.Length; i++) {
                 for (int j = 0; j < _remarksData[i].TargetTransforms.Length; j++) {
                     _lines[lineCount].SetPositions(targetVertexWorldSpace[i][j], Remarks[i].transform as RectTransform);
+                    lineCount++;
                 }
             }
 

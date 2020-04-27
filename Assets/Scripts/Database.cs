@@ -22,7 +22,7 @@ public class Database : MonoBehaviour
     }
 
 
-    internal void BuildMoves(int currentPart)
+    internal void BuildMoves()
     {
         //clear previous parts
         for (int i = 0; i < AllPartsRoot.childCount; i++)

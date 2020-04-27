@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 880053111aa501b4d9a20b6810265912
+guid: c3ecda62923bd4345bb433495a7a4267
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -12,7 +12,9 @@ TrueTypeFontImporter:
   fontNames:
   - Raleway ExtraBold
   fallbackFontReferences:
+  - {fileID: 12800000, guid: 880053111aa501b4d9a20b6810265912, type: 3}
   - {fileID: 12800000, guid: 25666c3ceb53b524dbe59d0418f3a194, type: 3}
+  - {fileID: 12800000, guid: 53b4d0bfaad58fd46be35835e1204e2b, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1

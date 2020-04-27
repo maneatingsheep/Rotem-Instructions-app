@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: c4441e5529a01f145b45783e381599da
+guid: 20ee9d133edec1c4aacd7445bf571aa0
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -13,6 +13,7 @@ TrueTypeFontImporter:
   - Rubik
   fallbackFontReferences:
   - {fileID: 12800000, guid: 72615a9265ebc28459761d1d9ba9179f, type: 3}
+  - {fileID: 12800000, guid: c4441e5529a01f145b45783e381599da, type: 3}
   - {fileID: 12800000, guid: 5c8e359690a2cac459731aea107ca7f0, type: 3}
   - {fileID: 12800000, guid: 45e3b6b88566af846adb3adb24c17b37, type: 3}
   - {fileID: 12800000, guid: 679ee45bc24b93545945dcce44db42b5, type: 3}

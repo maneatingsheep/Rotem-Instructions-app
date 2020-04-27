@@ -11,6 +11,8 @@ public class MenuManager : MonoBehaviour
     public Sprite NavMenuOpenedImage;
     public Sprite InventoryOpenedImage;
     public Sprite InventoryClosedImage;
+    public Sprite ToolsOpenedImage;
+    public Sprite ToolsClosedImage;
     public Sprite RemarksOpenedImage;
     public Sprite RemarksClosedImage;
 
@@ -19,17 +21,24 @@ public class MenuManager : MonoBehaviour
 
     public Image NavMenuImg;
     public Image InventoryImg;
+    public Image ToolsImg;
     public Image RemarksImg;
     public Image DoneImg;
 
-    bool isInvOpen = false;
+
+    public Color OnColor;
+    public Color OffColor;
+
     bool isNavOpen = false;
+    bool isInvOpen = false;
+    bool isToolsOpen = false;
     public bool isRemarksOpen = true;
 
     public Transform ScrollerViewTr;
     public GameObject NavMenu;
     public NavMenuItem MenuItemPF;
     public GameObject InvMenu;
+    public GameObject ToolsMenu;
 
     public Action<int> StepPressedCallback;
 
@@ -69,19 +78,23 @@ public class MenuManager : MonoBehaviour
     public void NavMenuToggled() {
         isNavOpen = !isNavOpen;
         isInvOpen = false;
-
-        NavMenu.SetActive(isNavOpen);
-        InvMenu.SetActive(isInvOpen);
+        isToolsOpen = false;
 
         SetSkin();
     }
 
     public void InvMenuToggled() {
-        isInvOpen = !isInvOpen;
         isNavOpen = false;
-        
-        NavMenu.SetActive(isNavOpen);
-        InvMenu.SetActive(isInvOpen);
+        isInvOpen = !isInvOpen;
+        isToolsOpen = false;
+
+        SetSkin();
+    }
+
+    public void ToolsMenuToggled() {
+        isInvOpen = false;
+        isNavOpen = false;
+        isToolsOpen = !isToolsOpen;
 
         SetSkin();
     }
@@ -111,9 +124,18 @@ public class MenuManager : MonoBehaviour
 
     private void SetSkin() {
 
+
+        NavMenu.SetActive(isNavOpen);
+        InvMenu.SetActive(isInvOpen);
+        ToolsMenu.SetActive(isToolsOpen);
+
         NavMenuImg.sprite = (isNavOpen) ? NavMenuOpenedImage : NavMenuClosedImage;
         InventoryImg.sprite = (isInvOpen) ? InventoryOpenedImage : InventoryClosedImage;
+        ToolsImg.sprite = (isInvOpen) ? ToolsOpenedImage : ToolsClosedImage;
+
         RemarksImg.sprite = (isRemarksOpen) ? RemarksOpenedImage : RemarksClosedImage;
+
+
     }
 
 }

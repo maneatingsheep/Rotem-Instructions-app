@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: f2fc514e97b33204699989909f6a5a0a
+guid: d78de57b1523c944298fa90f1636a556
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -12,8 +12,15 @@ TrueTypeFontImporter:
   fontNames:
   - Raleway
   fallbackFontReferences:
+  - {fileID: 12800000, guid: f68cd6d02356d4e4494e3602ba26ad58, type: 3}
+  - {fileID: 12800000, guid: 0feafa52d46b6394db98b474f6ab757f, type: 3}
+  - {fileID: 12800000, guid: 8353d4438de4bd54d9826972aec60def, type: 3}
+  - {fileID: 12800000, guid: f4997d35b9436974d88e3f21231f448f, type: 3}
+  - {fileID: 12800000, guid: a9334a36784c30b4cab7ba8b364e0370, type: 3}
+  - {fileID: 12800000, guid: cf22d1a629225b64b939d375e4eabb3d, type: 3}
   - {fileID: 12800000, guid: 54bbb27bf700b7d4f9fc22981bf71527, type: 3}
   - {fileID: 12800000, guid: 65f7317d35f2fdb4fb549c847f4ca7fb, type: 3}
+  - {fileID: 12800000, guid: f2fc514e97b33204699989909f6a5a0a, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1

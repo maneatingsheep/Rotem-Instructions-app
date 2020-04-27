@@ -14,6 +14,7 @@ public class AssemblyManager : MonoBehaviour {
     public MenuManager MenuManagerRef;
     public RemarksManager RemarksManagerRef;
     public InventoryManager InventoryManagerRef;
+    public SplashView SplashViewRef;
 
     public Transform AllPartsRoot;
     public Transform RotatorCont;
@@ -23,8 +24,11 @@ public class AssemblyManager : MonoBehaviour {
     public Color OpaqueColor;
     public Color TransparentColor;
 
-    private int CurrentMove;
-    private int CurrentPart;
+    private int _currentMove;
+    private int _currentAssembly;
+    private int _minMoveNum;
+    private int _maxMoveNum;
+    private bool _isHome;
 
     bool _isAnimating = false;
     
@@ -61,30 +65,56 @@ public class AssemblyManager : MonoBehaviour {
 
         RemarksManagerRef.Init();
         DatabaseRef.Init(PartMaterial);
-        
+
+        DatabaseRef.BuildMoves();
+
+        MenuManagerRef.Init(DatabaseRef.Moves);
+        SplashViewRef.Init(DatabaseRef.PartData.Assemblies);
+
+        SplashViewRef.gameObject.SetActive(true);
 
         NavControllerRef.ButtonPressedCallback += ButtonPressed;
         MenuManagerRef.StepPressedCallback += GotoMove;
+        SplashViewRef.ReadytoGo += AssemblySelected;
 
+        _currentMove = 0;
+        _currentAssembly = 0;
+        _isHome = true;
+        _minMoveNum = 0;
+        _maxMoveNum = 0;
 
-        LoadChapter(0);
+        
     }
 
+    public void LogoutClicked() {
+        SplashViewRef.gameObject.SetActive(true);
+    }
 
-    private void LoadChapter(int chapter)
-    {
+    public void AssemblySelected(int assemblyIndex) {
+        SplashViewRef.gameObject.SetActive(false);
+
+        _currentAssembly = assemblyIndex;
+
+        string assName = DatabaseRef.PartData.Assemblies[assemblyIndex].ElementName;
+
+        _minMoveNum = int.MaxValue;
+        _maxMoveNum = -1;
+        
+
+        for (int i = 0; i < DatabaseRef.Moves.Length; i++) {
+            if (DatabaseRef.Moves[i].AssemblyName == assName) {
+                _minMoveNum = Math.Min(_minMoveNum, i);
+                _maxMoveNum = Math.Max(_maxMoveNum, i);
+            }
+        }
+
+        _currentMove = _minMoveNum;
+
         StopAllCoroutines();
 
-
-        CurrentMove = -1;
-        CurrentPart = chapter;
-
-        DatabaseRef.BuildMoves(CurrentPart);
-
-        StartCoroutine(ResetToCurrentMove(false));
+        ResetToCurrentMove();
         StartCoroutine(MoveCameraToCurrentMove(false));
 
-        MenuManagerRef.Init(DatabaseRef.Moves);
         UpdateHud();
     }
 
@@ -100,21 +130,25 @@ public class AssemblyManager : MonoBehaviour {
                 StopAnimation();
                 break;
             case NavController.ButtonType.OneBack:
-                if (CurrentMove > -1) {
-                    GotoMove(CurrentMove-1);
+                if (!_isHome) {
+                    GotoMove(_currentMove - 1);
                 }
                 
 
                 break;
             case NavController.ButtonType.OneForward:
-                if (CurrentMove < DatabaseRef.Moves.Length - 1) {
-                    GotoMove(CurrentMove + 1);
+                if (_isHome) {
+                    GotoMove(_currentMove);
+                } else {
+                    GotoMove(_currentMove + 1);
                 }
+
                 break;
             case NavController.ButtonType.FullBack:
                 StopAnimation();
-                CurrentMove = -1;
-                StartCoroutine(ResetToCurrentMove(true));
+                _isHome = true;
+                _currentMove = _minMoveNum;
+                ResetToCurrentMove();
                 StartCoroutine(MoveCameraToCurrentMove(true));
 
 
@@ -129,7 +163,8 @@ public class AssemblyManager : MonoBehaviour {
             MenuManagerRef.RemarksToggled();
         }
         StopAnimation();
-        CurrentMove = moveNum;
+        _isHome = false;
+        _currentMove = moveNum;
         StartAnimation(true);
     }
 
@@ -138,7 +173,7 @@ public class AssemblyManager : MonoBehaviour {
         if (showTransition) {
             StartCoroutine(MoveCameraToCurrentMove(true));
         }
-        _animCR =  StartCoroutine(PlayCurrentMoveContiniousAnimation(showTransition));
+        _animCR =  StartCoroutine(PlayCurrentMoveContiniousAnimation());
     }
 
     private void StopAnimation() {
@@ -147,7 +182,7 @@ public class AssemblyManager : MonoBehaviour {
             StopAllCoroutines();
             _animCR = null;
         }
-        ResetToCurrentMove(false);
+        ResetToCurrentMove();
         _isAnimating = false;
     }
 
@@ -205,17 +240,17 @@ public class AssemblyManager : MonoBehaviour {
         _isTouching = false;
     }
 
-    private IEnumerator PlayCurrentMoveContiniousAnimation(bool showTransition) {
+    private IEnumerator PlayCurrentMoveContiniousAnimation() {
 
 
-        yield return StartCoroutine(ResetToCurrentMove(showTransition));
+        ResetToCurrentMove();
 
         while (true) {
 
 
-            if (CurrentMove > -1) {
+            if (!_isHome) {
 
-                yield return ResetToCurrentMove(false);
+                ResetToCurrentMove();
                 yield return new WaitForSeconds(REST_TIME);
 
 
@@ -233,24 +268,23 @@ public class AssemblyManager : MonoBehaviour {
 
     private void UpdateHud()
     {
-        NavController.UIState usState = NavController.UIState.Master;
+        NavController.UIState usState = NavController.UIState.Home;
 
-        if (CurrentMove == 0)
-        {
-            usState = NavController.UIState.First;
+        if (!_isHome) {
+            if (_currentMove == _minMoveNum) {
+                usState = NavController.UIState.First;
 
-        }
-        else if (CurrentMove == DatabaseRef.Moves.Length - 1)
-        {
-            usState = NavController.UIState.Last;
-        }
-        else if (CurrentMove > 0)
-        {
-            usState = NavController.UIState.Middle;
-        }
+            } else if (_currentMove == _maxMoveNum) {
+                usState = NavController.UIState.Last;
 
-        NavControllerRef.SetUIState(usState, _isAnimating, CurrentMove, DatabaseRef.Moves.Length);
-        MenuManagerRef.UpdateToStepNum(CurrentMove);
+            } else {
+                usState = NavController.UIState.Middle;
+            }
+        }
+        
+
+        NavControllerRef.SetUIState(usState, _isAnimating, _currentMove - _minMoveNum, _maxMoveNum - _minMoveNum + 1);
+        MenuManagerRef.UpdateToStepNum(_currentMove);
     }
 
     private IEnumerator MoveCameraToCurrentMove(bool doAnimate) {
@@ -261,11 +295,11 @@ public class AssemblyManager : MonoBehaviour {
         float camDist = DatabaseRef.PartData.InitialCamDist;
 
 
-        if (CurrentMove > -1) {
-            rot = DatabaseRef.Moves[CurrentMove].ViewRot;
+        if (!_isHome) {
+            rot = DatabaseRef.Moves[_currentMove].ViewRot;
 
-            focalRelativePoint = DatabaseRef.Moves[CurrentMove].ViewFocusPoint;
-            camDist = DatabaseRef.Moves[CurrentMove].ViewCamDistance;
+            focalRelativePoint = DatabaseRef.Moves[_currentMove].ViewFocusPoint;
+            camDist = DatabaseRef.Moves[_currentMove].ViewCamDistance;
         }
 
 
@@ -292,33 +326,31 @@ public class AssemblyManager : MonoBehaviour {
        
     }
 
-    private IEnumerator ResetToCurrentMove(bool showTransition) {
+    private void ResetToCurrentMove() {
 
 
-        if (CurrentMove > -1) {
-            InventoryManagerRef.UpdateInventory(DatabaseRef.Moves[CurrentMove]);
-        } else {
+        if (_isHome) {
             InventoryManagerRef.UpdateInventory(DatabaseRef.Moves);
+        } else {
+            InventoryManagerRef.UpdateInventory(DatabaseRef.Moves[_currentMove]);
         }
 
         //remarks
-        if (CurrentMove != -1) {
-                       
-            RemarksManagerRef.SetRemarks(DatabaseRef.Moves[CurrentMove]);
-            
-        } else {
+        if (_isHome) {
             RemarksManagerRef.SetRemarks(null);
+        } else {
+            RemarksManagerRef.SetRemarks(DatabaseRef.Moves[_currentMove]);
         }
 
 
         //reset moves
         for (int i = 0; i < DatabaseRef.Moves.Length; i++) {
-            ResetSingleMove(DatabaseRef.Moves[i], i, showTransition);
+            ResetSingleMove(DatabaseRef.Moves[i], i);
         }
 
         //assembly visibility
         for (int i = 0; i < DatabaseRef.PartData.Assemblies.Length; i++) {
-            if (CurrentMove == -1 || DatabaseRef.PartData.Assemblies[i].ElementName == DatabaseRef.Moves[CurrentMove].AssemblyName || Array.Exists<string>(DatabaseRef.Moves[CurrentMove].SupportingAssemblies, (s) => (DatabaseRef.PartData.Assemblies[i].ElementName == s))) {
+            if (i == _currentAssembly || Array.Exists<string>(DatabaseRef.Moves[_currentMove].SupportingAssemblies, (s) => (DatabaseRef.PartData.Assemblies[i].ElementName == s))) {
                 Transform assemblyTr = AllPartsRoot.Find(DatabaseRef.PartData.Assemblies[i].ElementName);
                 assemblyTr.gameObject.SetActive(true);
                 for (int j = 0; j < DatabaseRef.PartData.Assemblies[i].Transforms.Length; j++) {
@@ -329,17 +361,14 @@ public class AssemblyManager : MonoBehaviour {
             }
         }
 
-        if (showTransition) {
-            yield return new WaitForSeconds(TRANSITION_TIME);
-        }
     }
 
-    private void ResetSingleMove(Move m, int movenum, bool doFade) {
+    private void ResetSingleMove(Move m, int movenum) {
 
         bool isSupportingAssembly = false;
         
-        if (CurrentMove > -1) {
-            isSupportingAssembly = Array.Exists<string>(DatabaseRef.Moves[CurrentMove].SupportingAssemblies, (s) => s == m.AssemblyName);
+        if (!_isHome) {
+            isSupportingAssembly = Array.Exists<string>(DatabaseRef.Moves[_currentMove].SupportingAssemblies, (s) => s == m.AssemblyName);
         }
 
 
@@ -348,17 +377,15 @@ public class AssemblyManager : MonoBehaviour {
 
                 Transform t = m.Transformations[i].Elements.Transforms[j];
                 bool isVisible = false;
-                if (isSupportingAssembly || movenum <= CurrentMove || CurrentMove == -1) {
 
+
+                if (_isHome || isSupportingAssembly || movenum <= _currentMove) {
                     isVisible = true;
-
-                    if (CurrentMove == -1 || isSupportingAssembly || movenum < CurrentMove) {
-                        t.localPosition = m.Transformations[i].Final.Pos[j];
-                        t.localRotation = m.Transformations[i].Final.Rot[j];
-                    } else {
-                        t.localPosition = m.Transformations[i].Initial.Pos[j];
-                        t.localRotation = m.Transformations[i].Initial.Rot[j];
-                    }
+                    t.localPosition = m.Transformations[i].Final.Pos[j];
+                    t.localRotation = m.Transformations[i].Final.Rot[j];
+                } else {
+                    t.localPosition = m.Transformations[i].Initial.Pos[j];
+                    t.localRotation = m.Transformations[i].Initial.Rot[j];
                 }
 
 
@@ -372,7 +399,7 @@ public class AssemblyManager : MonoBehaviour {
 
                     }*/
                 } else {
-                    SetVisibility(t, isVisible, doFade);
+                    SetVisibility(t, isVisible);
                 }
 
             }
@@ -380,7 +407,7 @@ public class AssemblyManager : MonoBehaviour {
         
     }
 
-    private void SetVisibility(Transform t, bool isVisible, bool doFade) {
+    private void SetVisibility(Transform t, bool isVisible) {
         Color c = (isVisible) ? OpaqueColor : TransparentColor;
         t.gameObject.SetActive(isVisible);
 
@@ -434,7 +461,7 @@ public class AssemblyManager : MonoBehaviour {
     }*/
 
     private IEnumerator PlayCurrentMovePartAnimation() {
-        Move m = DatabaseRef.Moves[CurrentMove];
+        Move m = DatabaseRef.Moves[_currentMove];
 
         for (int j = 0; j < m.Transformations.Length; j++) {
             yield return StartCoroutine(PlaySingleSubMoveAnimation(m.Transformations[j]));

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
 public class CustomEditorGUI :Editor{
 
     private bool _isAddToList = false;
@@ -48,7 +49,7 @@ public class CustomEditorGUI :Editor{
         try {
             inputIndex = int.Parse(inputIndexStr);
         } catch (Exception e) {
-            //Debug.Log(e.Message);
+            Debug.Log(e.Message);
         }
 
         if (GUILayout.Button("Capture Transforms By Names")) {
@@ -60,5 +61,5 @@ public class CustomEditorGUI :Editor{
             element.CaptureRemarkTargetsNames(inputIndex, isAddToList);
         }
     }
-
 }
+#endif 

@@ -1,5 +1,8 @@
 ﻿
 public interface EditorControlled {
+
+
+#if UNITY_EDITOR
     void CapturePartView();
 
     void ApplyPartView();
@@ -8,6 +11,6 @@ public interface EditorControlled {
     void CaptureTransformsbyNames(int index, bool addToExistingList);
 
     void CaptureRemarkTargetsNames(int index, bool addToExistingList);
-
+# endif
 
 }
