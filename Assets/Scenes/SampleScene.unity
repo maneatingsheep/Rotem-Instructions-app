@@ -2577,7 +2577,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!20 &440301499
 Camera:
   m_ObjectHideFlags: 0
@@ -4135,7 +4135,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &735203171
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5870,7 +5870,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1170774465
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6686,14 +6686,14 @@ MonoBehaviour:
   NavMenuOpenedImage: {fileID: 21300000, guid: 36bc2f87137a7e344ae9edd6105f0974, type: 3}
   InventoryOpenedImage: {fileID: 21300000, guid: 1325c4fa8d466d047b0b9187840df60d,
     type: 3}
-  InventoryClosedImage: {fileID: 21300000, guid: 46d1adde43fba454096086ad9e9176f7,
+  InventoryClosedImage: {fileID: 21300000, guid: 62c909b8d7aecb14eb1871918a148be5,
     type: 3}
   ToolsOpenedImage: {fileID: 21300000, guid: e3f545de3e223864b803b420b9f5d89c, type: 3}
   ToolsClosedImage: {fileID: 21300000, guid: 93415bd5d0f5ef14f9a94033a259fa11, type: 3}
-  RemarksOpenedImage: {fileID: 21300000, guid: 35a2d72d9d99e18419356cfdc9bad1e3, type: 3}
-  RemarksClosedImage: {fileID: 21300000, guid: b35ac5bc989b11a408042a42bec025ce, type: 3}
+  RemarksOpenedImage: {fileID: 21300000, guid: 312089f300571104f873625dcdfd774a, type: 3}
+  RemarksClosedImage: {fileID: 21300000, guid: 00ed69c40a8fea543b2297a72863d16f, type: 3}
   DoneOnImage: {fileID: 21300000, guid: d4e0a55ff59521746a36f65d0a52b545, type: 3}
-  DoneOffImage: {fileID: 21300000, guid: 1a7ada2768541404aa56132ccdc1242d, type: 3}
+  DoneOffImage: {fileID: 21300000, guid: d4e0a55ff59521746a36f65d0a52b545, type: 3}
   NavMenuImg: {fileID: 118149819}
   InventoryImg: {fileID: 1522620872}
   ToolsImg: {fileID: 402698132}

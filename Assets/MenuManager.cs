@@ -131,7 +131,7 @@ public class MenuManager : MonoBehaviour
 
         NavMenuImg.sprite = (isNavOpen) ? NavMenuOpenedImage : NavMenuClosedImage;
         InventoryImg.sprite = (isInvOpen) ? InventoryOpenedImage : InventoryClosedImage;
-        ToolsImg.sprite = (isInvOpen) ? ToolsOpenedImage : ToolsClosedImage;
+        ToolsImg.sprite = (isToolsOpen) ? ToolsOpenedImage : ToolsClosedImage;
 
         RemarksImg.sprite = (isRemarksOpen) ? RemarksOpenedImage : RemarksClosedImage;
 
