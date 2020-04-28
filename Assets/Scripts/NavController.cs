@@ -5,14 +5,12 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class NavController : MonoBehaviour {
-    public enum ButtonType { StartPLaying, StopPLaying, OneBack, OneForward, FullBack };
+    public enum ButtonType { OneBack, OneForward, Home };
     internal enum UIState { Home, First, Middle, Last };
 
     public Action<ButtonType> ButtonPressedCallback;
     
 
-    public Button StartPlaying;
-    public Button StopPlaying;
     public Button OneBack;
     public Button OneForward;
     
@@ -27,16 +25,12 @@ public class NavController : MonoBehaviour {
     
 
     public void ButtonPressed(Button sender) {
-        if (sender == StartPlaying) {
-            ButtonPressedCallback(ButtonType.StartPLaying);
-        } else if (sender == StopPlaying) {
-            ButtonPressedCallback(ButtonType.StopPLaying);
-        } else if (sender == OneBack) {
+        if (sender == OneBack) {
             ButtonPressedCallback(ButtonType.OneBack);
         } else if (sender == OneForward) {
             ButtonPressedCallback(ButtonType.OneForward);
         } else if (sender == HomeButt) {
-            ButtonPressedCallback(ButtonType.FullBack);
+            ButtonPressedCallback(ButtonType.Home);
         }
     }
 

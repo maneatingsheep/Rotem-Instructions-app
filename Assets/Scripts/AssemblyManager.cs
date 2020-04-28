@@ -34,7 +34,6 @@ public class AssemblyManager : MonoBehaviour {
     
     private Vector3 _startTouch;
     private bool _isTouching = false;
-    private Coroutine _animCR;
 
     public float ANIMATION_TIME;
     public float TRANSITION_TIME;
@@ -42,6 +41,9 @@ public class AssemblyManager : MonoBehaviour {
 
     public float CamDistFromCenter;
 
+    public Color DefaultCol;
+    public Color PartOfMoveCol;
+    public Color CurrentTransformationCol;
 
     void Start() {
 
@@ -108,27 +110,20 @@ public class AssemblyManager : MonoBehaviour {
             }
         }
 
-        _currentMove = _minMoveNum;
 
-        StopAllCoroutines();
+        MenuManagerRef.UpdateVisibleSteps(_minMoveNum, _maxMoveNum);
+        InventoryManagerRef.UpdateInventory(DatabaseRef.Moves, _minMoveNum, _maxMoveNum);
 
-        ResetToCurrentMove();
-        StartCoroutine(MoveCameraToCurrentMove(false));
+        GotoMove(-1);
 
-        UpdateHud();
+       
     }
 
     private void ButtonPressed(NavController.ButtonType button) {
 
         
         switch (button) {
-            case NavController.ButtonType.StartPLaying:
-                
-                StartAnimation(false);
-                break;
-            case NavController.ButtonType.StopPLaying:
-                StopAnimation();
-                break;
+            
             case NavController.ButtonType.OneBack:
                 if (!_isHome) {
                     GotoMove(_currentMove - 1);
@@ -144,47 +139,41 @@ public class AssemblyManager : MonoBehaviour {
                 }
 
                 break;
-            case NavController.ButtonType.FullBack:
-                StopAnimation();
-                _isHome = true;
-                _currentMove = _minMoveNum;
-                ResetToCurrentMove();
-                StartCoroutine(MoveCameraToCurrentMove(true));
-
-
+            case NavController.ButtonType.Home:
+                if (!_isHome) {
+                    GotoMove(-1);
+                }
+                
                 break;
         }
 
-        UpdateHud();
     }
 
     private void GotoMove(int moveNum) {
         if (!MenuManagerRef.isRemarksOpen) {
             MenuManagerRef.RemarksToggled();
         }
-        StopAnimation();
-        _isHome = false;
-        _currentMove = moveNum;
-        StartAnimation(true);
-    }
+        
+        
+        if (moveNum < 0) {
+            _isHome = true;
+            _currentMove = _minMoveNum;
+        } else {
+            _isHome = false;
+            _currentMove = moveNum;
+        }
+        
+        UpdateHud();
 
-    private void StartAnimation(bool showTransition) {
+        StopAllCoroutines();
+
         _isAnimating = true;
-        if (showTransition) {
-            StartCoroutine(MoveCameraToCurrentMove(true));
-        }
-        _animCR =  StartCoroutine(PlayCurrentMoveContiniousAnimation());
+        
+        StartCoroutine(MoveCameraToCurrentMove(true));
+        StartCoroutine(PlayCurrentMoveContiniousAnimation());
     }
 
-    private void StopAnimation() {
-        if (_animCR != null) {
-            //StopCoroutine(_animCR);
-            StopAllCoroutines();
-            _animCR = null;
-        }
-        ResetToCurrentMove();
-        _isAnimating = false;
-    }
+    
 
     void Update() {
         if (Input.GetMouseButtonDown(0)) {
@@ -245,21 +234,15 @@ public class AssemblyManager : MonoBehaviour {
 
         ResetToCurrentMove();
 
-        while (true) {
+        while (!_isHome) {
+
+            ResetToCurrentMove();
+            yield return new WaitForSeconds(REST_TIME);
 
 
-            if (!_isHome) {
+            yield return StartCoroutine(PlayCurrentMovePartAnimation());
 
-                ResetToCurrentMove();
-                yield return new WaitForSeconds(REST_TIME);
-
-
-                yield return StartCoroutine(PlayCurrentMovePartAnimation());
-
-                yield return new WaitForSeconds(REST_TIME);
-            }
-
-            //GoToCurrentMoveEnd();
+            yield return new WaitForSeconds(REST_TIME);
 
         }
 
@@ -284,7 +267,7 @@ public class AssemblyManager : MonoBehaviour {
         
 
         NavControllerRef.SetUIState(usState, _isAnimating, _currentMove - _minMoveNum, _maxMoveNum - _minMoveNum + 1);
-        MenuManagerRef.UpdateToStepNum(_currentMove);
+        MenuManagerRef.UpdateToStepNum(_currentMove, _isHome);
     }
 
     private IEnumerator MoveCameraToCurrentMove(bool doAnimate) {
@@ -329,9 +312,7 @@ public class AssemblyManager : MonoBehaviour {
     private void ResetToCurrentMove() {
 
 
-        if (_isHome) {
-            InventoryManagerRef.UpdateInventory(DatabaseRef.Moves);
-        } else {
+        if (!_isHome) {
             InventoryManagerRef.UpdateInventory(DatabaseRef.Moves[_currentMove]);
         }
 
@@ -376,16 +357,17 @@ public class AssemblyManager : MonoBehaviour {
             for (int j = 0; j < m.Transformations[i].Elements.Transforms.Length; j++) {
 
                 Transform t = m.Transformations[i].Elements.Transforms[j];
-                bool isVisible = false;
+                bool isVisible = _isHome || isSupportingAssembly || movenum <= _currentMove;
 
 
-                if (_isHome || isSupportingAssembly || movenum <= _currentMove) {
-                    isVisible = true;
+                if (isVisible && (movenum < _currentMove || _isHome)) {
                     t.localPosition = m.Transformations[i].Final.Pos[j];
                     t.localRotation = m.Transformations[i].Final.Rot[j];
+                    SetColorToTransform(t, DefaultCol);
                 } else {
                     t.localPosition = m.Transformations[i].Initial.Pos[j];
                     t.localRotation = m.Transformations[i].Initial.Rot[j];
+                    SetColorToTransform(t, PartOfMoveCol);
                 }
 
 
@@ -472,7 +454,11 @@ public class AssemblyManager : MonoBehaviour {
     }
 
     private IEnumerator PlaySingleSubMoveAnimation(Transformation tr) {
-        
+
+        for (int i = 0; i < tr.Elements.Transforms.Length; i++) {
+            SetColorToTransform(tr.Elements.Transforms[i], CurrentTransformationCol);
+        }
+
         float start = Time.time;
         while (Time.time < start + ANIMATION_TIME) {
             for (int i = 0; i < tr.Elements.Transforms.Length; i++) {
@@ -480,6 +466,7 @@ public class AssemblyManager : MonoBehaviour {
                 float prog = Mathf.Clamp((Time.time - start) / ANIMATION_TIME, 0, 1);
                 t.localPosition = Vector3.Lerp(tr.Initial.Pos[i], tr.Final.Pos[i], prog);
                 t.localRotation = Quaternion.Slerp(tr.Initial.Rot[i], tr.Final.Rot[i], prog);
+                
             }
 
             yield return null;
@@ -492,5 +479,12 @@ public class AssemblyManager : MonoBehaviour {
             t.localRotation = tr.Final.Rot[i];
         }
 
+    }
+
+    private void SetColorToTransform(Transform t, Color c) {
+        MeshRenderer[] mr = t.GetComponentsInChildren<MeshRenderer>();
+        for (int i = 0; i < mr.Length; i++) {
+            mr[i].material.color = c;
+        }
     }
 }

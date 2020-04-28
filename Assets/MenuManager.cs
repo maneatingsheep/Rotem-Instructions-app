@@ -38,6 +38,7 @@ public class MenuManager : MonoBehaviour
     public GameObject NavMenu;
     public NavMenuItem MenuItemPF;
     public GameObject InvMenu;
+    public GameObject FullInvMenu;
     public GameObject ToolsMenu;
 
     public Action<int> StepPressedCallback;
@@ -48,19 +49,24 @@ public class MenuManager : MonoBehaviour
 
     public int CompletedStep;
     private int _currnetStep;
+    
+    internal bool IsHome = false;
+
+    NavMenuItem[] _items; 
 
     public void Init(Move[] moves) {
 
-        
+        _items = new NavMenuItem[moves.Length];
 
         for (int i = 0; i < moves.Length; i++) {
             NavMenuItem item = Instantiate<NavMenuItem>(MenuItemPF);
             item.transform.SetParent(ScrollerViewTr.transform);
-            item.UpdateContent(i + 1);
+            //item.UpdateContent(i + 1);
             item.gameObject.SetActive(true);
 
             int t = i;
-            item.GetComponent<Button>().onClick.AddListener(delegate { StepClicked(t); });
+            item.GetComponent<Button>().onClick.AddListener(() =>  StepClicked(t) );
+            _items[i] = item;
         }
 
         ScrollRectRef.verticalNormalizedPosition = 1;
@@ -69,6 +75,17 @@ public class MenuManager : MonoBehaviour
 
         RemarksManagerRef.ShowRemarks(isRemarksOpen);
         SetSkin();
+    }
+
+    public void UpdateVisibleSteps(int minStep, int maxStep) {
+        for (int i = 0; i < _items.Length; i++) {
+            if (i >= minStep && i <= maxStep) {
+                _items[i].UpdateContent(i - minStep + 1);
+                _items[i].gameObject.SetActive(true);
+            } else {
+                _items[i].gameObject.SetActive(false);
+            }
+        }
     }
 
     private void StepClicked(int stepNum) {
@@ -111,22 +128,29 @@ public class MenuManager : MonoBehaviour
         } else {
             CompletedStep = _currnetStep;
         }
-        UpdateToStepNum(_currnetStep);
+        UpdateToStepNum(_currnetStep, IsHome);
     }
 
 
-    public void UpdateToStepNum(int step) {
+    public void UpdateToStepNum(int step, bool isHome) {
         DoneImg.gameObject.SetActive(step > -1);
         DoneImg.sprite = (step <= CompletedStep) ? DoneOnImage : DoneOffImage;
 
         _currnetStep = step;
+        IsHome = isHome;
+
+        isInvOpen &= !IsHome;
+        SetSkin();
+
+
     }
 
     private void SetSkin() {
 
 
         NavMenu.SetActive(isNavOpen);
-        InvMenu.SetActive(isInvOpen);
+        InvMenu.SetActive(isInvOpen && !IsHome);
+        FullInvMenu.SetActive(isInvOpen && IsHome);
         ToolsMenu.SetActive(isToolsOpen);
 
         NavMenuImg.sprite = (isNavOpen) ? NavMenuOpenedImage : NavMenuClosedImage;

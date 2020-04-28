@@ -70,7 +70,6 @@ public class Transformation
     }
 
 
-
     private void ResetSingleRotationScale(Transform t) {
         if (t.childCount > 0) {
 

@@ -9,8 +9,8 @@ public class InventoryItem : MonoBehaviour
     public Text CountFld;
     public Text NameFld;
 
-    internal void UpdateContent(Transformation transformation) {
-        CountFld.text = "X " + transformation.Elements.Transforms.Length;
-        NameFld.text = transformation.Elements.ElementName;
+    internal void UpdateContent(ElementSet elements) {
+        CountFld.text = "X " + elements.Transforms.Length;
+        NameFld.text = elements.ElementName;
     }
 }

@@ -43,7 +43,7 @@ public class ToolsManager : MonoBehaviour
             Items[i].gameObject.SetActive(true);
 
 
-            Items[i].UpdateContent(move.Transformations[i]);
+            Items[i].UpdateContent(move.Transformations[i].Elements);
         }
     }
 }
